@@ -16,20 +16,47 @@ export default function ContactPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    setError('');
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: '1c754231-fd7b-4867-a03f-0bb7f91f6436', // ✅ Your actual key
+          name: formData.name,
+          email: formData.email,
+          subject: `Portfolio Contact: ${formData.topic}`,
+          message: formData.message,
+          from_name: formData.name,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsSubmitted(true);
+        setFormData({ name: '', email: '', topic: '', message: '' });
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', topic: '', message: '' });
-      setTimeout(() => setIsSubmitted(false), 3000);
-    }, 1500);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -39,24 +66,19 @@ export default function ContactPage() {
     });
   };
 
-  // Prevent hydration mismatch
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
     <>
       <Navbar />
       <div className="min-h-screen flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-5xl mx-auto">
-          {/* Page Title */}
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight text-center">
             <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Contact
             </span>
           </h1>
 
-          {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">
               Got a project in mind?
@@ -66,11 +88,20 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* Two-Column Layout */}
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-            {/* LEFT: Contact Form */}
             <div className="flex-1">
               <form onSubmit={handleSubmit} className="space-y-3.5">
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-sm p-3 rounded-lg text-center">
+                    {error}
+                  </div>
+                )}
+                {isSubmitted && (
+                  <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 text-sm p-3 rounded-lg text-center">
+                    ✅ Message sent successfully! I'll get back to you soon.
+                  </div>
+                )}
+
                 <div>
                   <input
                     type="text"
@@ -104,11 +135,11 @@ export default function ContactPage() {
                     required
                   >
                     <option value="">Select one...</option>
-                    <option value="business-analysis">Business Analysis</option>
-                    <option value="data-analytics">Data Analytics</option>
-                    <option value="web-development">Web Development</option>
-                    <option value="collaboration">Collaboration / Partnership</option>
-                    <option value="other">Other</option>
+                    <option value="Business Analysis">Business Analysis</option>
+                    <option value="Data Analytics">Data Analytics</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Collaboration">Collaboration / Partnership</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
@@ -136,16 +167,13 @@ export default function ContactPage() {
               </form>
             </div>
 
-            {/* RIGHT: Side Info - ALL CLICKABLE */}
             <div className="lg:w-64 flex-shrink-0">
               <div className="bg-gray-900/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/30 space-y-5">
-                {/* Other Ways to Reach Me - ALL CLICKABLE */}
                 <div>
                   <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
                     OTHER WAYS TO REACH ME
                   </h3>
                   <div className="space-y-2">
-                    {/* Email - Clickable */}
                     <a
                       href="mailto:liquejericc@gmail.com"
                       className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition text-sm group cursor-pointer"
@@ -153,7 +181,6 @@ export default function ContactPage() {
                       <FaEnvelope className="text-blue-400 w-4 h-4 group-hover:scale-110 transition" />
                       liquejericc@gmail.com
                     </a>
-                    {/* GitHub - Clickable */}
                     <a
                       href="https://github.com/jeclique444"
                       target="_blank"
@@ -163,7 +190,6 @@ export default function ContactPage() {
                       <FaGithub className="text-blue-400 w-4 h-4 group-hover:scale-110 transition" />
                       GitHub
                     </a>
-                    {/* LinkedIn - Clickable */}
                     <a
                       href="https://www.linkedin.com/in/jeric-lique-02b2b4417"
                       target="_blank"
@@ -173,7 +199,6 @@ export default function ContactPage() {
                       <FaLinkedin className="text-blue-400 w-4 h-4 group-hover:scale-110 transition" />
                       LinkedIn
                     </a>
-                    {/* Location - Clickable (opens Google Maps) */}
                     <a
                       href="https://www.google.com/maps/search/Lipa+City+Philippines"
                       target="_blank"
@@ -186,10 +211,8 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                {/* Divider */}
                 <div className="border-t border-gray-700/50"></div>
 
-                {/* Availability - Clickable (opens email) */}
                 <div>
                   <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
                     AVAILABILITY
