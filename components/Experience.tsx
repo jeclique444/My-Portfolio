@@ -1,4 +1,9 @@
 // /components/Experience.tsx
+"use client";
+
+import { motion } from 'framer-motion';
+import Tilt from 'react-parallax-tilt';
+
 export default function Experience() {
   const experiences = [
     {
@@ -24,23 +29,54 @@ export default function Experience() {
   ];
 
   return (
-    <section id="experience" className="py-20 max-w-4xl mx-auto px-4">
-      <h2 className="text-4xl font-bold text-white mb-12">Experience</h2>
+    // ✅ Adjusted padding to fit content on one page
+    <section id="experience" className="min-h-screen pt-24 pb-12 max-w-4xl mx-auto px-4 scroll-mt-24">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        viewport={{ once: true }}
+        className="text-center mb-8"
+      >
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+          <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Experience
+          </span>
+        </h2>
+        <p className="text-gray-400 text-sm">Where I've honed my skills</p>
+      </motion.div>
       
-      <div className="space-y-8">
+      <div className="space-y-6">
         {experiences.map((exp, index) => (
-          <div key={index} className="bg-gray-900/50 border border-gray-800 rounded-lg p-6 hover:border-blue-500/50 transition">
-            <div className="flex flex-wrap justify-between items-start mb-2">
-              <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-              <span className="text-blue-400 text-sm">{exp.date}</span>
-            </div>
-            <p className="text-gray-400 mb-4">{exp.company}</p>
-            <ul className="list-disc list-inside text-gray-300 space-y-2">
-              {exp.responsibilities.map((item, idx) => (
-                <li key={idx} className="text-sm leading-relaxed">{item}</li>
-              ))}
-            </ul>
-          </div>
+          <Tilt
+            key={index}
+            tiltMaxAngleX={5}
+            tiltMaxAngleY={5}
+            perspective={800}
+            glareEnable={true}
+            glareMaxOpacity={0.1}
+            scale={1.02}
+            transitionSpeed={300}
+            className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-lg p-5 transition-all duration-300"
+          >
+            <motion.div
+              initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
+              viewport={{ once: true }}
+            >
+              <div className="flex flex-wrap justify-between items-start mb-1">
+                <h3 className="text-lg font-semibold text-white leading-tight">{exp.title}</h3>
+                <span className="text-blue-400 text-xs bg-blue-400/10 px-2.5 py-0.5 rounded-full whitespace-nowrap ml-2">{exp.date}</span>
+              </div>
+              <p className="text-gray-400 text-sm mb-2">{exp.company}</p>
+              <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs leading-relaxed">
+                {exp.responsibilities.map((item, idx) => (
+                  <li key={idx} className="pl-1">{item}</li>
+                ))}
+              </ul>
+            </motion.div>
+          </Tilt>
         ))}
       </div>
     </section>

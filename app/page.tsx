@@ -1,19 +1,20 @@
-// /app/page.tsx
 import Hero from '@/components/Hero';
-import Experience from '@/components/Experience';
 import Skills from '@/components/Skills';
+import Experience from '@/components/Experience';
 import Education from '@/components/Education';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Contact from '@/app/contact/page';
 
 export default function Home() {
   return (
-    <main className="bg-black min-h-screen">
+    <main className="min-h-screen">
       <Navbar />
       <Hero />
-      <Experience />
       <Skills />
+      <Experience />
       <Education />
+      <Contact />
       <Footer />
     </main>
   );

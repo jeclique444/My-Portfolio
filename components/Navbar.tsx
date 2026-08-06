@@ -1,25 +1,42 @@
 // /components/Navbar.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navItems = [
     { name: 'Home', href: '#' },
-    { name: 'Experience', href: '#experience' },
     { name: 'Skills', href: '#skills' },
+    { name: 'Experience', href: '#experience' },
     { name: 'Education', href: '#education' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (
-    <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-sm z-50 border-b border-gray-800">
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-black/90 backdrop-blur-md border-b border-blue-500/20' : 'bg-transparent'
+    }`}>
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-        {/* Logo/Name */}
-        <a href="#" className="text-white font-bold text-xl hover:text-blue-400 transition">
-          Jeric Lique
+        {/* Logo: Jeric + IT Model (Two lines) */}
+        <a href="#" className="flex flex-col leading-tight">
+          <span className="text-white font-bold text-xl hover:text-blue-400 transition">
+            Jeric
+          </span>
+          <span className="text-[10px] font-medium text-blue-400 tracking-[0.2em] uppercase">
+            the IT Model
+          </span>
         </a>
 
         {/* Desktop Menu */}
@@ -28,7 +45,7 @@ export default function Navbar() {
             <a
               key={item.name}
               href={item.href}
-              className="text-gray-300 hover:text-white transition font-medium"
+              className="text-gray-300 hover:text-white transition font-medium hover:scale-105 transform duration-200"
             >
               {item.name}
             </a>
@@ -46,7 +63,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-black/95 border-b border-gray-800">
+        <div className="md:hidden bg-black/95 border-b border-blue-500/20 backdrop-blur-md">
           <div className="flex flex-col items-center py-4 gap-4">
             {navItems.map((item) => (
               <a
