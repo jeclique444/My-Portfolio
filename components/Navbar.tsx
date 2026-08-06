@@ -20,6 +20,7 @@ export default function Navbar() {
     { name: 'Home', href: '/' },
     { name: 'Skills', href: '/skills' },
     { name: 'Experience', href: '/experience' },
+    { name: 'Projects', href: '/projects' },  // 
     { name: 'Education', href: '/education' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -28,7 +29,7 @@ export default function Navbar() {
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       scrolled 
         ? 'bg-black/90 backdrop-blur-md border-b border-blue-500/20' 
-        : 'bg-black/90 backdrop-blur-md border-t-2 border-blue-400/30 border-b border-blue-500/10'
+        : 'bg-black/90 backdrop-blur-md border-t-2 border-blue-400/30'
     }`}>
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
         <a href="/" className="flex flex-col leading-tight">
@@ -36,7 +37,7 @@ export default function Navbar() {
             Jeric
           </span>
           <span className="text-[10px] font-medium text-blue-400 tracking-[0.2em] uppercase">
-            the IT Model
+            Business Model
           </span>
         </a>
 

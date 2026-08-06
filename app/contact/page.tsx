@@ -4,6 +4,7 @@
 import { FaGithub, FaLinkedin, FaEnvelope, FaMapPin, FaCheckCircle } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export default function ContactPage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -167,14 +168,13 @@ export default function ContactPage() {
               </form>
             </div>
 
-            <div className="lg:w-64 flex-shrink-0">
+            <div className="lg:w-64 shrink-0">
               <div className="bg-gray-900/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/30 space-y-5">
                 <div>
                   <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
                     OTHER WAYS TO REACH ME
                   </h3>
                   <div className="space-y-2">
-                    {/* ✅ Email - Diretso sa Gmail Web */}
                     <a
                       href="https://mail.google.com/mail/?view=cm&fs=1&to=liquejericc@gmail.com"
                       target="_blank"
@@ -242,6 +242,7 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

@@ -102,11 +102,11 @@ export default function Hero() {
             View My Work
           </a>
           <a
-            href="#projects"
+            href="/projects"
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
-          >
+            >
             View Projects
-          </a>
+            </a>
           <a
             href="/contact"
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"

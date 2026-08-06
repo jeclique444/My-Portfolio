@@ -22,7 +22,6 @@ export default function Education() {
   ];
 
   return (
-    // ✅ Very small reduction in padding: pt-20 → pt-16, pb-12 → pb-8
     <section id="education" className="min-h-screen pt-16 pb-8 max-w-5xl mx-auto px-6 scroll-mt-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -39,7 +38,6 @@ export default function Education() {
         <p className="text-gray-400 text-sm">My academic journey</p>
       </motion.div>
       
-      {/* Education Card - reduced margin-bottom */}
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
@@ -62,7 +60,6 @@ export default function Education() {
         </p>
       </motion.div>
 
-      {/* Certificates - slightly reduced gap */}
       <h3 className="text-lg font-semibold text-white mb-3 text-center">Certificates</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {certificates.map((cert, index) => (
@@ -75,7 +72,7 @@ export default function Education() {
             className="group relative bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-purple-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer"
             onClick={() => setSelectedCert(index)}
           >
-            <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-800/50">
+            <div className="relative w-full aspect-video overflow-hidden bg-gray-800/50">
               <Image
                 src={cert.image}
                 alt={cert.name}
@@ -99,7 +96,6 @@ export default function Education() {
         ))}
       </div>
 
-      {/* Lightbox Modal */}
       {selectedCert !== null && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -115,7 +111,7 @@ export default function Education() {
             className="relative max-w-3xl w-full bg-gray-900 rounded-xl overflow-hidden border border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full aspect-[16/9]">
+            <div className="relative w-full aspect-video">
               <Image
                 src={certificates[selectedCert].image}
                 alt={certificates[selectedCert].name}
