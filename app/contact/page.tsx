@@ -34,7 +34,7 @@ export default function ContactPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          access_key: '1c754231-fd7b-4867-a03f-0bb7f91f6436', // ✅ Your actual key
+          access_key: '1c754231-fd7b-4867-a03f-0bb7f91f6436',
           name: formData.name,
           email: formData.email,
           subject: `Portfolio Contact: ${formData.topic}`,
@@ -81,10 +81,10 @@ export default function ContactPage() {
 
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">
-              Got a project in mind?
+              Got a idea or project in mind?
             </h2>
             <p className="text-gray-300 text-sm max-w-2xl mx-auto leading-relaxed">
-              Tell me about it — I read every message. No obligation, just a conversation about what you're building.
+              Let's talk about it and I read every message. No pressure, just a conversation about what you're thinking.
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export default function ContactPage() {
                 )}
                 {isSubmitted && (
                   <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 text-sm p-3 rounded-lg text-center">
-                    ✅ Message sent successfully! I'll get back to you soon.
+                    Message sent successfully! I'll get back to you soon.
                   </div>
                 )}
 
@@ -174,8 +174,11 @@ export default function ContactPage() {
                     OTHER WAYS TO REACH ME
                   </h3>
                   <div className="space-y-2">
+                    {/* ✅ Email - Diretso sa Gmail Web */}
                     <a
-                      href="mailto:liquejericc@gmail.com"
+                      href="https://mail.google.com/mail/?view=cm&fs=1&to=liquejericc@gmail.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition text-sm group cursor-pointer"
                     >
                       <FaEnvelope className="text-blue-400 w-4 h-4 group-hover:scale-110 transition" />
@@ -220,6 +223,8 @@ export default function ContactPage() {
                   <a
                     href="mailto:liquejericc@gmail.com?subject=Inquiry%20about%20your%20availability"
                     className="block group cursor-pointer"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <div className="flex items-center gap-2 text-emerald-400 group-hover:text-emerald-300 transition">
                       <FaCheckCircle className="w-4 h-4" />

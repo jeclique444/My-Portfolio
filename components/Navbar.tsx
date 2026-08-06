@@ -17,20 +17,21 @@ export default function Navbar() {
   }, []);
 
   const navItems = [
-    { name: 'Home', href: '#' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Education', href: '#education' },
+    { name: 'Home', href: '/' },
+    { name: 'Skills', href: '/skills' },
+    { name: 'Experience', href: '/experience' },
+    { name: 'Education', href: '/education' },
     { name: 'Contact', href: '/contact' },
   ];
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      scrolled ? 'bg-black/90 backdrop-blur-md border-b border-blue-500/20' : 'bg-transparent'
+      scrolled 
+        ? 'bg-black/90 backdrop-blur-md border-b border-blue-500/20' 
+        : 'bg-black/90 backdrop-blur-md border-t-2 border-blue-400/30 border-b border-blue-500/10'
     }`}>
       <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-        {/* Logo: Jeric + IT Model (Two lines) */}
-        <a href="#" className="flex flex-col leading-tight">
+        <a href="/" className="flex flex-col leading-tight">
           <span className="text-white font-bold text-xl hover:text-blue-400 transition">
             Jeric
           </span>
@@ -39,7 +40,6 @@ export default function Navbar() {
           </span>
         </a>
 
-        {/* Desktop Menu */}
         <div className="hidden md:flex gap-8">
           {navItems.map((item) => (
             <a
@@ -52,7 +52,6 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           className="md:hidden text-white text-2xl"
           onClick={() => setIsOpen(!isOpen)}
@@ -61,7 +60,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-black/95 border-b border-blue-500/20 backdrop-blur-md">
           <div className="flex flex-col items-center py-4 gap-4">

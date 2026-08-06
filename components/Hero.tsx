@@ -1,7 +1,6 @@
 // /components/Hero.tsx
 "use client";
 
-import { FaGithub, FaLinkedin, FaEnvelope, FaPhone } from 'react-icons/fa';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,55 +71,47 @@ export default function Hero() {
         </h1>
 
         {/* NICKNAME */}
-        <p className="text-sm text-gray-400 italic mb-4">
+        <p className="text-sm text-gray-400 italic mb-3">
           but most people call me <span className="text-blue-400 font-semibold not-italic">Jec</span>
         </p>
 
         {/* SUBTITLE */}
-        <p className="text-lg text-gray-300 font-medium mb-4">
+        <p className="text-lg text-gray-300 font-medium mb-3">
           Aspiring Business Analyst · Data & Solutions Enthusiast
         </p>
 
-        {/* BIO - SHORTENED */}
-        <p className="text-gray-300 text-sm max-w-lg mb-6 leading-relaxed">
+        {/* BIO */}
+        <p className="text-gray-300 text-sm max-w-lg mb-4 leading-relaxed">
           BS Information Technology student at De La Salle Lipa with a growing passion for data analytics, business strategy, and building solutions that connect business and technology with real-world needs. Currently learning full-stack development through AI-assisted projects — including our thesis on developing a smart parking system. I'm bubbly, collaborative, and believe that good communication and trust make the best projects happen. Eager to learn, grow, and contribute meaningfully.
         </p>
 
-        {/* BUTTONS - Three buttons */}
-        <div className="flex gap-4 flex-wrap mb-6">
+        {/* TAGLINE */}
+        <p className="text-gray-300 text-xs max-w-lg leading-relaxed mb-4">
+          Let's build something awesome together and{' '}
+          <span className="font-bold text-white glow-text">
+            I'd love to hear about your project!
+          </span>
+        </p>
+
+        {/* BUTTONS - Solid Blue */}
+        <div className="flex gap-4 flex-wrap">
           <a
-            href="#experience"
-            className="px-6 py-2.5 border border-gray-500 hover:border-blue-400 hover:text-blue-400 rounded-lg font-medium text-gray-200 transition text-sm"
+            href="/experience"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
           >
             View My Work
           </a>
           <a
             href="#projects"
-            className="px-6 py-2.5 border border-gray-500 hover:border-blue-400 hover:text-blue-400 rounded-lg font-medium text-gray-200 transition text-sm"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
           >
             View Projects
           </a>
           <a
             href="/contact"
-            className="px-6 py-2.5 border border-gray-500 hover:border-blue-400 hover:text-blue-400 rounded-lg font-medium text-gray-200 transition text-sm"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
           >
             Work With Me
-          </a>
-        </div>
-
-        {/* CONTACT INFO */}
-        <div className="flex flex-wrap gap-4 text-gray-300 text-sm">
-          <a href="mailto:liquejericc@gmail.com" className="flex items-center gap-2 hover:text-blue-400 transition">
-            <FaEnvelope className="text-blue-400" /> liquejericc@gmail.com
-          </a>
-          <a href="tel:09569663936" className="flex items-center gap-2 hover:text-blue-400 transition">
-            <FaPhone className="text-blue-400" /> 0956-966-3936
-          </a>
-          <a href="https://github.com/jeclique444" target="_blank" rel="noopener" className="flex items-center gap-2 hover:text-blue-400 transition">
-            <FaGithub className="text-blue-400" /> GitHub
-          </a>
-          <a href="https://www.linkedin.com/in/jeric-lique-02b2b4417" target="_blank" rel="noopener" className="flex items-center gap-2 hover:text-blue-400 transition">
-            <FaLinkedin className="text-blue-400" /> LinkedIn
           </a>
         </div>
       </div>
