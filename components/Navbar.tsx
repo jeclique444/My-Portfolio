@@ -37,7 +37,7 @@ export default function Navbar() {
             Jeric
           </span>
           <span className="text-[10px] font-medium text-blue-400 tracking-[0.2em] uppercase">
-            Business Model
+            the IT Model
           </span>
         </a>
 

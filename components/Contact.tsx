@@ -63,20 +63,21 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="min-h-screen py-20 md:py-28 flex flex-col justify-center max-w-5xl mx-auto px-4 scroll-mt-24">
+    // ✅ Removed justify-center, using fixed top padding to raise header
+    <section id="contact" className="min-h-screen pt-20 pb-20 max-w-5xl mx-auto px-6 scroll-mt-16 flex flex-col">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="text-center mb-12"
+        className="text-center mb-6"
       >
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
+        <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
           <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             Contact
           </span>
         </h2>
-        <p className="text-gray-400 text-base max-w-2xl mx-auto">
+        <p className="text-gray-400 text-sm max-w-2xl mx-auto">
           Got a idea or project in mind? Let's talk about it — I read every message.
         </p>
       </motion.div>
