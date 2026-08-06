@@ -55,7 +55,7 @@ export default function EducationPage() {
                 <p className="text-xs text-blue-400">July 2023 - Present</p>
               </div>
               <span className="px-3 py-0.5 bg-blue-900/50 text-blue-400 rounded-full text-xs border border-blue-700/50 mt-1 md:mt-0">
-                🎯 Major in Software Development
+                Major in System Development
               </span>
             </div>
             <p className="text-gray-300 mt-2 text-xs">
@@ -63,7 +63,7 @@ export default function EducationPage() {
             </p>
           </motion.div>
 
-          <h3 className="text-lg font-semibold text-white mb-3 text-center">🏆 Certificates</h3>
+          <h3 className="text-lg font-semibold text-white mb-3 text-center"></h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {certificates.map((cert, index) => (
               <motion.div
@@ -74,7 +74,8 @@ export default function EducationPage() {
                 className="group relative bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-purple-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer"
                 onClick={() => setSelectedCert(index)}
               >
-                <div className="relative w-full aspect-video overflow-hidden bg-gray-800/50">
+                {/* ✅ Changed to aspect-4/3 to fix Tailwind warning */}
+                <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-800/50">
                   <Image
                     src={cert.image}
                     alt={cert.name}
@@ -112,7 +113,8 @@ export default function EducationPage() {
               className="relative max-w-3xl w-full bg-gray-900 rounded-xl overflow-hidden border border-gray-700"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="relative w-full aspect-video">
+              {/* ✅ Modal also uses aspect-4/3 */}
+              <div className="relative w-full aspect-4/3">
                 <Image
                   src={certificates[selectedCert].image}
                   alt={certificates[selectedCert].name}

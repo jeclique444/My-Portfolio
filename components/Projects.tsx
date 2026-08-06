@@ -61,12 +61,11 @@ export default function Projects() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               viewport={{ once: true }}
-              // ✅ Added flex flex-col to make card a column container
               className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 flex flex-col"
             >
               {/* Project Image */}
               <div 
-                className="relative w-full aspect-video overflow-hidden bg-gray-800/50 cursor-pointer flex-shrink-0"
+                className="relative w-full aspect-video overflow-hidden bg-gray-800/50 cursor-pointer shrink-0"
                 onClick={() => window.open(project.live, '_blank')}
               >
                 <Image
@@ -88,7 +87,7 @@ export default function Projects() {
                 )}
               </div>
 
-              {/* Project Info - ✅ Added flex-1 to take remaining space */}
+              {/* Project Info */}
               <div className="p-5 flex flex-col flex-1">
                 <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-blue-400 transition">
                   {project.title}
@@ -109,7 +108,7 @@ export default function Projects() {
                   ))}
                 </div>
 
-                {/* Buttons - ✅ Added mt-auto to push to bottom */}
+                {/* Buttons */}
                 <div className="flex gap-3 mt-auto">
                   <a
                     href={project.live}
@@ -133,7 +132,7 @@ export default function Projects() {
         </div>
       </section>
 
-      {/* PROJECT DETAILS MODAL - unchanged */}
+      {/* PROJECT DETAILS MODAL */}
       <AnimatePresence>
         {selectedProject !== null && (
           <motion.div

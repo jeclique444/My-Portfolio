@@ -22,13 +22,13 @@ export default function Education() {
   ];
 
   return (
-    <section id="education" className="min-h-screen pt-16 pb-8 max-w-5xl mx-auto px-6 scroll-mt-16">
+    <section id="education" className="min-h-screen py-10 max-w-5xl mx-auto px-6 scroll-mt-16 flex flex-col justify-center">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="text-center mb-6"
+        className="text-center mb-4"
       >
         <h2 className="text-4xl md:text-5xl font-bold text-white mb-1">
           <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -38,41 +38,44 @@ export default function Education() {
         <p className="text-gray-400 text-sm">My academic journey</p>
       </motion.div>
       
+      {/* Education Card */}
       <motion.div
-        initial={{ opacity: 0, x: -30 }}
+        initial={{ opacity: 0, x: -20 }}
         whileInView={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.4 }}
         viewport={{ once: true }}
-        className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl p-5 mb-6 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
+        className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl p-4 mb-4 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10"
       >
         <div className="flex flex-wrap justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-white">BS Information Technology</h3>
-            <p className="text-gray-400 text-sm">De La Salle Lipa</p>
-            <p className="text-xs text-blue-400">July 2023 - Present</p>
+            <h3 className="text-base font-semibold text-white">BS Information Technology</h3>
+            <p className="text-gray-400 text-xs">De La Salle Lipa</p>
+            <p className="text-[10px] text-blue-400">July 2023 - Present</p>
           </div>
-          <span className="px-3 py-0.5 bg-blue-900/50 text-blue-400 rounded-full text-xs border border-blue-700/50 mt-1 md:mt-0">
+          <span className="px-2.5 py-0.5 bg-blue-900/50 text-blue-400 rounded-full text-[10px] border border-blue-700/50 mt-0.5 md:mt-0">
             Major in System Development
           </span>
         </div>
-        <p className="text-gray-300 mt-2 text-xs">
+        <p className="text-gray-300 mt-1.5 text-[10px]">
           Thesis: <span className="text-white font-semibold">"Smart Parking Management System in Lipa City Downtown"</span>
         </p>
       </motion.div>
 
-      <h3 className="text-lg font-semibold text-white mb-3 text-center">Certificates</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* Certificates */}
+      <h3 className="text-sm font-semibold text-white mb-2 text-center"></h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {certificates.map((cert, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.08 }}
+            transition={{ duration: 0.3, delay: index * 0.06 }}
             viewport={{ once: true }}
             className="group relative bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-purple-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer"
             onClick={() => setSelectedCert(index)}
           >
-            <div className="relative w-full aspect-video overflow-hidden bg-gray-800/50">
+            {/* ✅ Fixed: aspect-[4/3] → aspect-4/3 */}
+            <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-800/50">
               <Image
                 src={cert.image}
                 alt={cert.name}
@@ -81,21 +84,22 @@ export default function Education() {
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                <span className="text-white text-xs font-medium bg-black/60 px-3 py-1.5 rounded-full">
+                <span className="text-white text-[10px] font-medium bg-black/60 px-3 py-1 rounded-full">
                   View
                 </span>
               </div>
             </div>
-            <div className="p-3 text-center">
-              <p className="text-white font-medium text-xs group-hover:text-purple-400 transition truncate">
+            <div className="p-2 text-center">
+              <p className="text-white font-medium text-[10px] group-hover:text-purple-400 transition truncate">
                 {cert.name}
               </p>
-              <p className="text-gray-400 text-[10px] mt-0.5">{cert.issuer}</p>
+              <p className="text-gray-400 text-[8px] mt-0.5">{cert.issuer}</p>
             </div>
           </motion.div>
         ))}
       </div>
 
+      {/* Lightbox Modal */}
       {selectedCert !== null && (
         <motion.div
           initial={{ opacity: 0 }}
