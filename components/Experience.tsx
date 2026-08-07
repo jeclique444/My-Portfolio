@@ -29,21 +29,21 @@ export default function Experience() {
   ];
 
   return (
-    // ✅ Adjusted padding to fit content on one page
-    <section id="experience" className="min-h-screen pt-24 pb-12 max-w-4xl mx-auto px-4 scroll-mt-24">
+    // ✅ Updated to match Education styling exactly
+    <section id="experience" className="min-h-screen py-8 max-w-5xl mx-auto px-6 scroll-mt-16 flex flex-col justify-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         viewport={{ once: true }}
-        className="text-center mb-8"
+        className="text-center mb-5"
       >
         <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
           <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             Experience
           </span>
         </h2>
-        <p className="text-gray-400 text-sm">Where I've honed my skills</p>
+        <p className="text-gray-400 text-base">Where I've honed my skills</p>
       </motion.div>
       
       <div className="space-y-6">
@@ -57,7 +57,7 @@ export default function Experience() {
             glareMaxOpacity={0.1}
             scale={1.02}
             transitionSpeed={300}
-            className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-lg p-5 transition-all duration-300"
+            className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl p-5 transition-all duration-300"
           >
             <motion.div
               initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
@@ -65,12 +65,16 @@ export default function Experience() {
               transition={{ duration: 0.5, delay: index * 0.15 }}
               viewport={{ once: true }}
             >
-              <div className="flex flex-wrap justify-between items-start mb-1">
-                <h3 className="text-lg font-semibold text-white leading-tight">{exp.title}</h3>
-                <span className="text-blue-400 text-xs bg-blue-400/10 px-2.5 py-0.5 rounded-full whitespace-nowrap ml-2">{exp.date}</span>
+              <div className="flex flex-wrap justify-between items-start mb-2">
+                <h3 className="text-xl font-semibold text-white leading-tight">
+                  {exp.title}
+                </h3>
+                <span className="text-blue-400 text-sm bg-blue-400/10 px-3 py-1 rounded-full whitespace-nowrap ml-2">
+                  {exp.date}
+                </span>
               </div>
-              <p className="text-gray-400 text-sm mb-2">{exp.company}</p>
-              <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs leading-relaxed">
+              <p className="text-gray-400 text-base mb-3">{exp.company}</p>
+              <ul className="list-disc list-inside text-gray-300 space-y-2 text-sm leading-relaxed">
                 {exp.responsibilities.map((item, idx) => (
                   <li key={idx} className="pl-1">{item}</li>
                 ))}

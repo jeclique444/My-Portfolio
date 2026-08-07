@@ -68,9 +68,10 @@ export default function SkillsPage() {
   const doubledSoftSkills = [...softSkills, ...softSkills];
 
   return (
-    <>
+    // ✅ Wrapper uses flex column to push footer to bottom
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <section className="h-screen flex flex-col justify-center items-center max-w-5xl mx-auto px-4">
+      <section className="flex-1 flex flex-col justify-center items-center max-w-5xl mx-auto px-4 w-full">
         <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -154,6 +155,6 @@ export default function SkillsPage() {
         </div>
       </section>
       <Footer />
-    </>
+    </div>
   );
 }

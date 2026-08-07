@@ -22,7 +22,7 @@ export default function Education() {
   ];
 
   return (
-    <section id="education" className="min-h-screen py-10 max-w-5xl mx-auto px-6 scroll-mt-16 flex flex-col justify-center">
+    <section id="education" className="min-h-screen py-8 max-w-5xl mx-auto px-6 scroll-mt-16 flex flex-col justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

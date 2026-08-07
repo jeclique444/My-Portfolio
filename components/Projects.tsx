@@ -29,6 +29,16 @@ export default function Projects() {
       live: "https://jeric-lique-portfolio.vercel.app",
       featured: false,
       detailedDescription: "A modern, responsive portfolio website built with Next.js, TypeScript, and Tailwind CSS. Features include dark mode, smooth animations with Framer Motion, and a contact form integrated with Web3Forms for email submissions."
+    },
+    {
+      title: "RootEd: Plant. Learn. Sustain.",
+      description: "A personal advocacy project focused on environmental education, community action, and long-term tree care. Currently a web app with static, hard-coded data — continuously being developed and improved.",
+      tech: ["React", "Express", "Render"],
+      image: "/projects/rooted.jpg",
+      github: "https://github.com/yourusername/rooted",
+      live: "https://rooted-app-ku1q.onrender.com/",
+      featured: false,
+      detailedDescription: "RootEd is a full-stack web application that tackles environmental advocacy through education and community engagement. Currently, the app is in its early stages and uses hard-coded data to demonstrate core features like the 'Community Forest' tracker and carbon footprint calculator. Built with React and Express, and deployed on Render, the project is continuously evolving with plans to integrate a database and user authentication. It reflects a deep commitment to sustainability and youth empowerment."
     }
   ];
 
@@ -37,13 +47,13 @@ export default function Projects() {
 
   return (
     <>
-      <section id="projects" className="min-h-screen pt-24 pb-16 max-w-4xl mx-auto px-4 scroll-mt-24">
+      <section id="projects" className="min-h-screen pt-12 pb-12 max-w-7xl mx-auto px-2 sm:px-4 scroll-mt-28 flex flex-col justify-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-8"
+          className="text-center mb-5"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
             <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
@@ -53,7 +63,8 @@ export default function Projects() {
           <p className="text-gray-400 text-sm">Things I've built</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* ✅ 3 columns on large screens, 2 on medium, 1 on small */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project, index) => (
             <motion.div
               key={index}
@@ -61,7 +72,7 @@ export default function Projects() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 flex flex-col"
+              className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 flex flex-col h-full"
             >
               {/* Project Image */}
               <div 
@@ -73,7 +84,7 @@ export default function Projects() {
                   alt={project.title}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <span className="text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full">
@@ -88,20 +99,20 @@ export default function Projects() {
               </div>
 
               {/* Project Info */}
-              <div className="p-5 flex flex-col flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-blue-400 transition">
+              <div className="p-4 flex flex-col flex-1">
+                <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-blue-400 transition line-clamp-1">
                   {project.title}
                 </h3>
-                <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                <p className="text-gray-400 text-xs mb-2 line-clamp-2 flex-1">
                   {project.description}
                 </p>
 
                 {/* Tech tags */}
-                <div className="flex flex-wrap gap-1.5 mb-3">
+                <div className="flex flex-wrap gap-1 mb-3">
                   {project.tech.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-0.5 bg-gray-800/50 text-blue-400 rounded-full text-[10px] border border-gray-700 font-medium"
+                      className="px-2 py-0.5 bg-gray-800/50 text-blue-400 rounded-full text-[10px] border border-gray-700 font-medium"
                     >
                       {tech}
                     </span>
@@ -109,19 +120,19 @@ export default function Projects() {
                 </div>
 
                 {/* Buttons */}
-                <div className="flex gap-3 mt-auto">
+                <div className="flex gap-2 mt-auto">
                   <a
                     href={project.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 text-center px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+                    className="flex-1 text-center px-2 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Live Demo
                   </a>
                   <button
                     onClick={() => openModal(index)}
-                    className="flex items-center justify-center gap-1.5 px-4 py-1.5 border border-gray-600 hover:border-blue-500 hover:text-blue-400 text-gray-300 rounded-lg text-sm font-medium transition"
+                    className="flex-1 text-center px-2 py-1.5 border border-gray-600 hover:border-blue-500 hover:text-blue-400 text-gray-300 rounded-lg text-xs font-medium transition"
                   >
                     Details
                   </button>

@@ -49,7 +49,6 @@ export default function Hero() {
 
       {/* RIGHT: Content */}
       <div className="flex-1">
-        {/* ANIMATED TEXT */}
         <div className="text-sm font-semibold text-blue-700 tracking-wider uppercase mb-2 h-6">
           <AnimatePresence mode="wait">
             <motion.span
@@ -65,35 +64,30 @@ export default function Hero() {
           </AnimatePresence>
         </div>
 
-        {/* NAME - ONE LINE */}
         <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-1 glow-text whitespace-nowrap">
           Hi, I'm Jeric Agojo Lique
         </h1>
 
-        {/* NICKNAME */}
         <p className="text-sm text-gray-400 italic mb-3">
           but most people call me <span className="text-blue-400 font-semibold not-italic">Jec</span>
         </p>
 
-        {/* SUBTITLE */}
         <p className="text-lg text-gray-300 font-medium mb-3">
           Aspiring Business Analyst · Data & Solutions Enthusiast
         </p>
 
-        {/* BIO */}
         <p className="text-gray-300 text-sm max-w-lg mb-4 leading-relaxed">
           BS Information Technology student at De La Salle Lipa with a growing passion for data analytics, business strategy, and building solutions that connect business and technology with real-world needs. Currently learning full-stack development through AI-assisted projects — including our thesis on developing a smart parking system. I'm bubbly, collaborative, and believe that good communication and trust make the best projects happen. Eager to learn, grow, and contribute meaningfully.
         </p>
 
-        {/* TAGLINE */}
-        <p className="text-gray-300 text-xs max-w-lg leading-relaxed mb-4">
+        {/* ✅ Tagline now forced to a single line */}
+        <p className="text-gray-300 text-sm max-w-lg leading-relaxed mb-4 whitespace-nowrap">
           Let's build something awesome together and{' '}
           <span className="font-bold text-white glow-text">
             I'd love to hear about your project!
           </span>
         </p>
 
-        {/* BUTTONS - Solid Blue */}
         <div className="flex gap-4 flex-wrap">
           <a
             href="/experience"
@@ -104,9 +98,9 @@ export default function Hero() {
           <a
             href="/projects"
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
-            >
+          >
             View Projects
-            </a>
+          </a>
           <a
             href="/contact"
             className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"

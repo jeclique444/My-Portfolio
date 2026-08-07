@@ -33,3 +33,21 @@ html {
 .glow-text {
   text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
 }
+
+/* /app/globals.css (add at the bottom) */
+
+/* Optional: use this class on any section you want to fill the viewport */
+.section-full {
+  min-height: calc(100vh - 80px) !important; /* adjust 80px to your navbar height */
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+/* For pages that already use h-screen, this will override safely */
+.h-screen {
+  height: calc(100vh - 80px) !important;
+  min-height: calc(100vh - 80px) !important;
+}

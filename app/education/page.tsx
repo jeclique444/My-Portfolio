@@ -26,22 +26,24 @@ export default function EducationPage() {
   return (
     <>
       <Navbar />
-      <section className="h-screen flex flex-col justify-center items-center max-w-5xl mx-auto px-6">
+      {/* ✅ Using your guide: pt-24 pb-12 max-w-7xl px-4 sm:px-6 */}
+      <section className="min-h-screen pt-24 pb-12 max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
         <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-center mb-6"
+            className="text-center mb-5"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
               <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Education & Certificates
               </span>
             </h2>
-            <p className="text-gray-400 text-sm">My academic journey</p>
+            <p className="text-gray-400 text-base">My academic journey</p>
           </motion.div>
           
+          {/* Education card - matches Experience card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -50,21 +52,22 @@ export default function EducationPage() {
           >
             <div className="flex flex-wrap justify-between items-start">
               <div>
-                <h3 className="text-lg font-semibold text-white">BS Information Technology</h3>
-                <p className="text-gray-400 text-sm">De La Salle Lipa</p>
-                <p className="text-xs text-blue-400">July 2023 - Present</p>
+                <h3 className="text-xl font-semibold text-white">BS Information Technology</h3>
+                <p className="text-gray-400 text-base">De La Salle Lipa</p>
+                <p className="text-sm text-blue-400">July 2023 - Present</p>
               </div>
-              <span className="px-3 py-0.5 bg-blue-900/50 text-blue-400 rounded-full text-xs border border-blue-700/50 mt-1 md:mt-0">
+              <span className="px-3 py-1 bg-blue-900/50 text-blue-400 rounded-full text-sm border border-blue-700/50 mt-1 md:mt-0">
                 Major in System Development
               </span>
             </div>
-            <p className="text-gray-300 mt-2 text-xs">
+            <p className="text-gray-300 mt-2 text-sm">
               Thesis: <span className="text-white font-semibold">"Smart Parking Management System in Lipa City Downtown"</span>
             </p>
           </motion.div>
 
-          <h3 className="text-lg font-semibold text-white mb-3 text-center"></h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Certificates */}
+          <h3 className="text-lg font-semibold text-white mb-4 text-center">Certificates</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {certificates.map((cert, index) => (
               <motion.div
                 key={index}
@@ -74,8 +77,8 @@ export default function EducationPage() {
                 className="group relative bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-purple-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 cursor-pointer"
                 onClick={() => setSelectedCert(index)}
               >
-                {/* ✅ Changed to aspect-4/3 to fix Tailwind warning */}
-                <div className="relative w-full aspect-4/3 overflow-hidden bg-gray-800/50">
+                {/* Certificate image */}
+                <div className="relative w-full aspect-video overflow-hidden bg-gray-800/50">
                   <Image
                     src={cert.image}
                     alt={cert.name}
@@ -87,17 +90,18 @@ export default function EducationPage() {
                     <span className="text-white text-xs font-medium bg-black/60 px-3 py-1.5 rounded-full">View</span>
                   </div>
                 </div>
-                <div className="p-3 text-center">
-                  <p className="text-white font-medium text-xs group-hover:text-purple-400 transition truncate">
+                <div className="p-4 text-center">
+                  <p className="text-white font-medium text-sm group-hover:text-purple-400 transition truncate">
                     {cert.name}
                   </p>
-                  <p className="text-gray-400 text-[10px] mt-0.5">{cert.issuer}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{cert.issuer}</p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
 
+        {/* Lightbox Modal */}
         {selectedCert !== null && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -113,8 +117,7 @@ export default function EducationPage() {
               className="relative max-w-3xl w-full bg-gray-900 rounded-xl overflow-hidden border border-gray-700"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* ✅ Modal also uses aspect-4/3 */}
-              <div className="relative w-full aspect-4/3">
+              <div className="relative w-full aspect-video">
                 <Image
                   src={certificates[selectedCert].image}
                   alt={certificates[selectedCert].name}

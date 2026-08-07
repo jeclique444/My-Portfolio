@@ -33,15 +33,17 @@ export default function ExperiencePage() {
   return (
     <>
       <Navbar />
-      <section className="h-screen flex flex-col justify-center items-center max-w-4xl mx-auto px-4">
+      {/* ✅ Balanced spacing: pt-20 for consistent header position, pb-16 for footer space */}
+      <section className="min-h-screen pt-24 pb-12 max-w-7xl mx-auto px-4 sm:px-6 flex flex-col justify-center">
         <div className="w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            // ✅ Balanced header margin
             className="text-center mb-6"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-2">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-1">
               <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Experience
               </span>
@@ -49,6 +51,7 @@ export default function ExperiencePage() {
             <p className="text-gray-400 text-sm">Where I've honed my skills</p>
           </motion.div>
           
+          {/* ✅ Cards with balanced spacing */}
           <div className="space-y-6">
             {experiences.map((exp, index) => (
               <Tilt
@@ -60,19 +63,24 @@ export default function ExperiencePage() {
                 glareMaxOpacity={0.1}
                 scale={1.02}
                 transitionSpeed={300}
-                className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-lg p-5 transition-all duration-300"
+                // ✅ Balanced card padding
+                className="bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl p-6 transition-all duration-300"
               >
                 <motion.div
                   initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.15 }}
                 >
-                  <div className="flex flex-wrap justify-between items-start mb-1">
-                    <h3 className="text-lg font-semibold text-white leading-tight">{exp.title}</h3>
-                    <span className="text-blue-400 text-xs bg-blue-400/10 px-2.5 py-0.5 rounded-full whitespace-nowrap ml-2">{exp.date}</span>
+                  <div className="flex flex-wrap justify-between items-start mb-2">
+                    <h3 className="text-xl font-semibold text-white leading-tight">
+                      {exp.title}
+                    </h3>
+                    <span className="text-blue-400 text-sm bg-blue-400/10 px-3 py-1 rounded-full whitespace-nowrap ml-2">
+                      {exp.date}
+                    </span>
                   </div>
-                  <p className="text-gray-400 text-sm mb-2">{exp.company}</p>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1 text-xs leading-relaxed">
+                  <p className="text-gray-400 text-base mb-3">{exp.company}</p>
+                  <ul className="list-disc list-inside text-gray-300 space-y-1.5 text-sm leading-relaxed">
                     {exp.responsibilities.map((item, idx) => (
                       <li key={idx} className="pl-1">{item}</li>
                     ))}
