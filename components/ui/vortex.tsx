@@ -24,7 +24,8 @@ const TAU = 2 * Math.PI;
 export const Vortex = (props: VortexProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef(null);
-  const animationFrameId = useRef<number>();
+  // ✅ FIXED: provide an initial value (null)
+  const animationFrameId = useRef<number>(null);
   const particleCount = props.particleCount || 700;
   const particlePropCount = 9;
   const particlePropsLength = particleCount * particlePropCount;
@@ -41,11 +42,9 @@ export const Vortex = (props: VortexProps) => {
   const xOff = 0.00125;
   const yOff = 0.00125;
   const zOff = 0.0005;
-  // Default to transparent – your violet background will show
   const backgroundColor = props.backgroundColor || "transparent";
   let tick = 0;
 
-  // ✅ FIXED: pass Math.random as the required argument
   const noise3D = createNoise3D(Math.random);
 
   let particleProps = new Float32Array(particlePropsLength);
@@ -103,10 +102,8 @@ export const Vortex = (props: VortexProps) => {
   const draw = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
     tick++;
 
-    // Clear to transparent
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Fill background ONLY if it's a solid color (skip for 'transparent')
     if (backgroundColor !== "transparent" && !backgroundColor.startsWith("rgba(0,0,0,0)")) {
       ctx.fillStyle = backgroundColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
