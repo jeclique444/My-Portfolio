@@ -12,7 +12,10 @@ export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const [textIndex, setTextIndex] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+  const [isInSection, setIsInSection] = useState(false);
+  const [isMouseMoving, setIsMouseMoving] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  let timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const texts = [
     'Aspiring Business Analyst',
@@ -32,68 +35,107 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, [texts.length]);
 
-  // Track mouse position for interactive effects
+  // Track mouse position ONLY when inside the Hero section
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
     const handleMouseMove = (e: MouseEvent) => {
-      if (sectionRef.current) {
-        const rect = sectionRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) });
+      const rect = section.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      setMousePosition({
+        x: Math.max(0, Math.min(1, x)),
+        y: Math.max(0, Math.min(1, y)),
+      });
+      setIsInSection(true);
+      setIsMouseMoving(true);
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        setIsMouseMoving(false);
+        setMousePosition({ x: 0.5, y: 0.5 });
+      }, 5000); 
+    };
+
+    const handleMouseLeave = () => {
+      setIsInSection(false);
+      setIsMouseMoving(false);
+      // Bumalik sa center paglabas ng section
+      setMousePosition({ x: 0.5, y: 0.5 });
+    };
+
+    section.addEventListener('mousemove', handleMouseMove);
+    section.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      section.removeEventListener('mousemove', handleMouseMove);
+      section.removeEventListener('mouseleave', handleMouseLeave);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
       }
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  // ✅ Laging visible ang spotlight (opacity: 1)
+  const glowOpacity = 1;
+
+  // ✅ Display position: center kapag hindi gumagalaw ang mouse
+  const displayX = isMouseMoving ? mousePosition.x : 0.5;
+  const displayY = isMouseMoving ? mousePosition.y : 0.5;
 
   return (
     <section 
       ref={sectionRef} 
       className="relative min-h-screen w-full overflow-hidden flex items-center justify-center"
     >
-      {/* Aurora Background (slightly dimmed for spotlight effect) */}
+      {/* Aurora Background */}
       <div className="absolute inset-0 w-full h-full opacity-60">
         <AuroraBackground className="w-full h-full" />
       </div>
 
-      {/* ✨ CINEMATIC MOVIE LIGHT — dramatic spotlight that follows cursor */}
+      {/* ✨ SPOTLIGHT — always visible, centers when mouse stops */}
       <div 
-        className="absolute inset-0 pointer-events-none transition-all duration-100"
+        className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
         style={{
           background: `
             radial-gradient(
-              900px at ${mousePosition.x * 100}% ${mousePosition.y * 100}%,
+              900px at ${displayX * 100}% ${displayY * 100}%,
               rgba(139, 92, 246, 0.6) 0%,
               rgba(79, 172, 254, 0.3) 30%,
               rgba(139, 92, 246, 0.05) 60%,
               transparent 80%
             )
           `,
-          opacity: 0.95,
+          opacity: glowOpacity,
           filter: 'blur(20px)',
           mixBlendMode: 'screen',
+          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
 
-      {/* ✨ Second layer — warm movie light glow */}
+      {/* ✨ Warm layer — always visible */}
       <div 
-        className="absolute inset-0 pointer-events-none transition-all duration-150"
+        className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
         style={{
           background: `
             radial-gradient(
-              600px at ${mousePosition.x * 100}% ${mousePosition.y * 100}%,
-              rgba(255, 255, 255, 0.15) 0%,
-              rgba(255, 200, 200, 0.05) 50%,
+              600px at ${displayX * 100}% ${displayY * 100}%,
+              rgba(255, 255, 255, 0.12) 0%,
+              rgba(255, 200, 200, 0.04) 50%,
               transparent 70%
             )
           `,
-          opacity: 0.8,
+          opacity: 0.7,
           filter: 'blur(40px)',
           mixBlendMode: 'lighten',
+          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
 
-      {/* ✨ Vignette effect — darkens edges for cinematic feel */}
+      {/* ✨ Vignette effect — darkens edges */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -118,8 +160,8 @@ export default function Hero() {
           maxDelay={800}
           starWidth={18}
           starHeight={3}
-          cursorX={mousePosition.x}
-          cursorY={mousePosition.y}
+          cursorX={displayX}
+          cursorY={displayY}
         />
       </div>
 
@@ -131,8 +173,8 @@ export default function Hero() {
           twinkleProbability={0.95}
           minTwinkleSpeed={0.2}
           maxTwinkleSpeed={1.5}
-          parallaxX={mousePosition.x}
-          parallaxY={mousePosition.y}
+          parallaxX={displayX}
+          parallaxY={displayY}
         />
       </div>
 
@@ -195,7 +237,7 @@ export default function Hero() {
           </p>
 
           <p className="text-base text-gray-300 max-w-2xl leading-relaxed mb-4 whitespace-nowrap">
-            Let's build something awesome together and{' '}
+            Let's build something great together and{' '}
             <span className="font-bold text-white glow-text">
               I'd love to hear about your project!
             </span>

@@ -1,9 +1,9 @@
 /* /app/globals.css */
 @import "tailwindcss";
 
-/* Custom gradient background - VIOLET THEME (unchanged) */
+/* ✅ ONE SOLID VIOLET BACKGROUND – no gradient, no second colors */
 body {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background: #302b63;   /* matches your Experience page */
   color: white;
   min-height: 100vh;
 }
@@ -11,22 +11,45 @@ body {
 /* Smooth scrolling with offset para sa navbar */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 100px; /* Adjust based on navbar height */
+  scroll-padding-top: 100px;
 }
 
-/* Custom scrollbar */
+/* ✅ Custom scrollbar – updated to match solid background */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
+  height: 12px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #1a1a2e;
+  background: #302b63;   /* solid violet, same as body */
+  border-radius: 0px;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4facfe, #00f2fe);
+  background: linear-gradient(180deg, #8b5cf6, #6366f1, #4facfe);
   border-radius: 10px;
+  border: 2px solid rgba(15, 12, 41, 0.5);
+  transition: all 0.3s ease;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00f2fe, #4facfe);
+  background: linear-gradient(180deg, #a78bfa, #818cf8, #60a5fa);
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(79, 172, 254, 0.2);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #7c3aed, #4f46e5, #3b82f6);
+}
+
+/* ✅ Scrollbar corner */
+::-webkit-scrollbar-corner {
+  background: #302b63;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8b5cf6 #302b63;
 }
 
 /* Glow effect for text */
@@ -34,11 +57,9 @@ html {
   text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
 }
 
-/* /app/globals.css (add at the bottom) */
-
-/* Optional: use this class on any section you want to fill the viewport */
+/* Optional: section-full class (unchanged) */
 .section-full {
-  min-height: calc(100vh - 80px) !important; /* adjust 80px to your navbar height */
+  min-height: calc(100vh - 80px) !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
@@ -46,8 +67,28 @@ html {
   padding-bottom: 1rem !important;
 }
 
-/* For pages that already use h-screen, this will override safely */
+/* For pages that already use h-screen */
 .h-screen {
   height: calc(100vh - 80px) !important;
   min-height: calc(100vh - 80px) !important;
+}
+
+/* Skills marquee animations (unchanged) */
+@keyframes scroll-tech {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes scroll-soft {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.scroll-tech {
+  animation: scroll-tech 35s linear infinite;
+}
+.scroll-soft {
+  animation: scroll-soft 28s linear infinite;
+}
+.scroll-paused {
+  animation-play-state: paused;
 }

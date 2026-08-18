@@ -7,9 +7,11 @@ import { FaTimes } from 'react-icons/fa';
 import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import KineticGrid from '@/components/ui/KineticGrid';
+import { HoverEffect } from '@/components/ui/card-hover-effect';
 
 export default function ProjectsPage() {
-  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+  const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
 
   const projects = [
     {
@@ -34,7 +36,7 @@ export default function ProjectsPage() {
     },
     {
       title: "RootEd: Plant. Learn. Sustain.",
-      description: "A personal advocacy project focused on environmental education, community action, and long-term tree care.",
+      description: "A personal advocacy project focused on environmental education, community action, and long-term tree care. Currently a web app with static, hard-coded data — continuously being developed and improved.",
       tech: ["React", "Express", "Render"],
       image: "/projects/rooted.jpg",
       github: "https://github.com/yourusername/rooted",
@@ -44,109 +46,122 @@ export default function ProjectsPage() {
     }
   ];
 
-  const openModal = (index: number) => setSelectedProject(index);
+  const openModal = (project: typeof projects[0]) => setSelectedProject(project);
   const closeModal = () => setSelectedProject(null);
+
+  const renderProjectCard = (project: typeof projects[0]) => (
+    <>
+      {/* Project Image */}
+      <div 
+        className="relative w-full aspect-video overflow-hidden bg-gray-800/50 cursor-pointer shrink-0"
+        onClick={() => window.open(project.live, '_blank')}
+      >
+        <Image
+          src={project.image}
+          alt={project.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <span className="text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full">
+            View Project
+          </span>
+        </div>
+        {project.featured && (
+          <span className="absolute top-3 left-3 bg-violet-600 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+            FEATURED
+          </span>
+        )}
+      </div>
+
+      {/* Project Info */}
+      <div className="p-4 flex flex-col flex-1">
+        <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-violet-300 transition line-clamp-1">
+          {project.title}
+        </h3>
+        <p className="text-gray-400 text-xs mb-2 line-clamp-2 flex-1">
+          {project.description}
+        </p>
+
+        <div className="flex flex-wrap gap-1 mb-3">
+          {project.tech.map((tech: string, idx: number) => (
+            <span
+              key={idx}
+              className="px-2 py-0.5 bg-gray-800/50 text-violet-400 rounded-full text-[10px] border border-gray-700 font-medium"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex gap-2 mt-auto">
+          <a
+            href={project.live}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-center px-2 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-medium transition"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Live Demo
+          </a>
+          <button
+            onClick={() => openModal(project)}
+            className="flex-1 text-center px-2 py-1.5 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-xs font-medium transition"
+          >
+            Details
+          </button>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
       <Navbar />
-      <section className="min-h-screen pt-12 pb-12 max-w-7xl mx-auto px-2 sm:px-4 flex flex-col justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-1">
-            <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Projects
-            </span>
-          </h2>
-          <p className="text-gray-400 text-sm">Things I've built</p>
-        </motion.div>
+      <section
+        id="projects-page"
+        className="relative min-h-screen w-full bg-slate-950 pt-4 pb-20 px-2 sm:px-4 scroll-mt-28 flex flex-col justify-center overflow-hidden"
+      >
+        {/* Kinetic Grid – vibrant violet */}
+        <div className="absolute inset-0 z-0">
+          <KineticGrid
+            background="transparent"
+            dotColor="#A78BFA"
+            lineColor="#8B5CF6"
+            trailColor="#7C3AED"
+            spacing={30}
+            radius={500}
+            strength={9}
+            trail={true}
+          />
+        </div>
 
-        {/* ✅ 3 columns on large screens, 2 on medium, 1 on small */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 hover:border-blue-500/50 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 flex flex-col h-full"
-            >
-              {/* Project Image */}
-              <div 
-                className="relative w-full aspect-video overflow-hidden bg-gray-800/50 cursor-pointer shrink-0"
-                onClick={() => window.open(project.live, '_blank')}
-              >
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full">
-                    View Project
-                  </span>
-                </div>
-                {project.featured && (
-                  <span className="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
-                    FEATURED
-                  </span>
-                )}
-              </div>
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-4"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
+              <span className="bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Projects
+              </span>
+            </h2>
+            <p className="text-gray-400 text-lg">Things I've built</p>
+          </motion.div>
 
-              {/* Project Info */}
-              <div className="p-4 flex flex-col flex-1">
-                <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-blue-400 transition line-clamp-1">
-                  {project.title}
-                </h3>
-                <p className="text-gray-400 text-xs mb-2 line-clamp-2 flex-1">
-                  {project.description}
-                </p>
-
-                {/* Tech tags */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {project.tech.map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 bg-gray-800/50 text-blue-400 rounded-full text-[10px] border border-gray-700 font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Buttons */}
-                <div className="flex gap-2 mt-auto">
-                  <a
-                    href={project.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 text-center px-2 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Live Demo
-                  </a>
-                  <button
-                    onClick={() => openModal(index)}
-                    className="flex-1 text-center px-2 py-1.5 border border-gray-600 hover:border-blue-500 hover:text-blue-400 text-gray-300 rounded-lg text-xs font-medium transition"
-                  >
-                    Details
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+          <HoverEffect items={projects}>
+            {(item) => renderProjectCard(item)}
+          </HoverEffect>
         </div>
       </section>
 
-      {/* PROJECT DETAILS MODAL */}
+      {/* Modal */}
       <AnimatePresence>
-        {selectedProject !== null && (
+        {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -167,8 +182,8 @@ export default function ProjectsPage() {
                   <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     PROJECT DETAILS
                   </span>
-                  {projects[selectedProject].featured && (
-                    <span className="bg-blue-600/20 text-blue-400 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-blue-500/30">
+                  {selectedProject.featured && (
+                    <span className="bg-violet-600/20 text-violet-400 text-[10px] font-semibold px-2.5 py-0.5 rounded-full border border-violet-500/30">
                       FEATURED
                     </span>
                   )}
@@ -184,8 +199,8 @@ export default function ProjectsPage() {
               <div className="p-6 max-h-[80vh] overflow-y-auto">
                 <div className="relative w-full aspect-video overflow-hidden rounded-xl mb-5 bg-gray-800/50">
                   <Image
-                    src={projects[selectedProject].image}
-                    alt={projects[selectedProject].title}
+                    src={selectedProject.image}
+                    alt={selectedProject.title}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -193,21 +208,21 @@ export default function ProjectsPage() {
                 </div>
 
                 <h3 className="text-2xl font-bold text-white mb-2">
-                  {projects[selectedProject].title}
+                  {selectedProject.title}
                 </h3>
 
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span className="text-xs font-medium text-blue-400 uppercase tracking-wider">
-                    {projects[selectedProject].featured ? 'Featured Project' : 'Personal Project'}
+                  <span className="text-xs font-medium text-violet-400 uppercase tracking-wider">
+                    {selectedProject.featured ? 'Featured Project' : 'Personal Project'}
                   </span>
                   <span className="text-gray-600 text-xs">•</span>
                   <span className="text-xs text-gray-400">
-                    {projects[selectedProject].tech.join(' · ')}
+                    {selectedProject.tech.join(' · ')}
                   </span>
                 </div>
 
                 <p className="text-gray-300 text-sm leading-relaxed mb-5">
-                  {projects[selectedProject].detailedDescription || projects[selectedProject].description}
+                  {selectedProject.detailedDescription || selectedProject.description}
                 </p>
 
                 <div className="mb-5">
@@ -215,10 +230,10 @@ export default function ProjectsPage() {
                     Tools:
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {projects[selectedProject].tech.map((tech, idx) => (
+                    {selectedProject.tech.map((tech, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-gray-800/50 text-blue-400 rounded-full text-xs border border-gray-700 font-medium"
+                        className="px-3 py-1 bg-gray-800/50 text-violet-400 rounded-full text-xs border border-gray-700 font-medium"
                       >
                         {tech}
                       </span>
@@ -228,16 +243,16 @@ export default function ProjectsPage() {
 
                 <div className="flex gap-3">
                   <a
-                    href={projects[selectedProject].live}
+                    href={selectedProject.live}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition"
+                    className="flex-1 text-center px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition"
                   >
                     Open Live Demo
                   </a>
                   <a
-                    href={`mailto:liquejericc@gmail.com?subject=Inquiry%20about%20${encodeURIComponent(projects[selectedProject].title)}`}
-                    className="flex-1 text-center px-4 py-2 border border-gray-600 hover:border-blue-500 hover:text-blue-400 text-gray-300 rounded-lg text-sm font-medium transition"
+                    href={`mailto:liquejericc@gmail.com?subject=Inquiry%20about%20${encodeURIComponent(selectedProject.title)}`}
+                    className="flex-1 text-center px-4 py-2 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
                   >
                     Send Message
                   </a>

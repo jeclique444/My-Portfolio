@@ -1,161 +1,271 @@
 // /components/ui/vortex.tsx
 "use client";
-
-import { useEffect, useRef, useState } from 'react';
+import { cn } from "@/lib/utils";
+import React, { useEffect, useRef } from "react";
+import { createNoise3D } from "simplex-noise";
+import { motion } from "framer-motion";
 
 interface VortexProps {
-  backgroundColor?: string;
-  rangeY?: number;
-  particleCount?: number;
-  baseHue?: number;
-  particleSaturation?: number;
-  particleLightness?: number;
+  children?: any;
   className?: string;
-  children?: React.ReactNode;
+  containerClassName?: string;
+  particleCount?: number;
+  rangeY?: number;
+  baseHue?: number;
+  baseSpeed?: number;
+  rangeSpeed?: number;
+  baseRadius?: number;
+  rangeRadius?: number;
+  backgroundColor?: string;
 }
 
-export function Vortex({
-  backgroundColor = 'black',
-  rangeY = 800,
-  particleCount = 300,
-  baseHue = 220,
-  particleSaturation = 80,
-  particleLightness = 60,
-  className = '',
-  children,
-}: VortexProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const particlesRef = useRef<any[]>([]);
-  const animationRef = useRef<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+const TAU = 2 * Math.PI;
 
-  useEffect(() => {
+export const Vortex = (props: VortexProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef(null);
+  const animationFrameId = useRef<number>();
+  const particleCount = props.particleCount || 700;
+  const particlePropCount = 9;
+  const particlePropsLength = particleCount * particlePropCount;
+  const rangeY = props.rangeY || 100;
+  const baseTTL = 50;
+  const rangeTTL = 150;
+  const baseSpeed = props.baseSpeed || 0.0;
+  const rangeSpeed = props.rangeSpeed || 1.5;
+  const baseRadius = props.baseRadius || 1;
+  const rangeRadius = props.rangeRadius || 2;
+  const baseHue = props.baseHue || 220;
+  const rangeHue = 100;
+  const noiseSteps = 3;
+  const xOff = 0.00125;
+  const yOff = 0.00125;
+  const zOff = 0.0005;
+  // Default to transparent – your violet background will show
+  const backgroundColor = props.backgroundColor || "transparent";
+  let tick = 0;
+
+  // ✅ FIXED: pass Math.random as the required argument
+  const noise3D = createNoise3D(Math.random);
+
+  let particleProps = new Float32Array(particlePropsLength);
+  let center: [number, number] = [0, 0];
+
+  const rand = (n: number): number => n * Math.random();
+  const randRange = (n: number): number => n - rand(2 * n);
+  const fadeInOut = (t: number, m: number): number => {
+    let hm = 0.5 * m;
+    return Math.abs(((t + hm) % m) - hm) / hm;
+  };
+  const lerp = (n1: number, n2: number, speed: number): number =>
+    (1 - speed) * n1 + speed * n2;
+
+  const setup = () => {
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (canvas && container) {
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        resize(canvas, ctx);
+        initParticles();
+        draw(canvas, ctx);
+      }
+    }
+  };
+
+  const initParticles = () => {
+    tick = 0;
+    particleProps = new Float32Array(particlePropsLength);
+    for (let i = 0; i < particlePropsLength; i += particlePropCount) {
+      initParticle(i);
+    }
+  };
+
+  const initParticle = (i: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
 
-    let width = 0;
-    let height = 0;
+    let x, y, vx, vy, life, ttl, speed, radius, hue;
 
-    // ✅ FIX: Use viewport dimensions para siguradong FULL PAGE
-    const resizeCanvas = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    };
+    x = rand(canvas.width);
+    y = center[1] + randRange(rangeY);
+    vx = 0;
+    vy = 0;
+    life = 0;
+    ttl = baseTTL + rand(rangeTTL);
+    speed = baseSpeed + rand(rangeSpeed);
+    radius = baseRadius + rand(rangeRadius);
+    hue = baseHue + rand(rangeHue);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / width) * 2 - 1;
-      const y = (e.clientY / height) * 2 - 1;
-      setMousePosition({ x, y });
-    };
+    particleProps.set([x, y, vx, vy, life, ttl, speed, radius, hue], i);
+  };
 
-    const handleMouseLeave = () => {
-      setMousePosition({ x: 0, y: 0 });
-    };
+  const draw = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+    tick++;
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
+    // Clear to transparent
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Create particles
-    const createParticles = () => {
-      particlesRef.current = [];
-      for (let i = 0; i < particleCount; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.random() * Math.min(width, height) * 0.6;
-        const speed = 0.002 + Math.random() * 0.005;
-        const hue = baseHue + (Math.random() - 0.5) * 30;
-        particlesRef.current.push({
-          x: width / 2 + Math.cos(angle) * radius,
-          y: height / 2 + Math.sin(angle) * radius,
-          targetX: width / 2 + Math.cos(angle) * radius,
-          targetY: height / 2 + Math.sin(angle) * radius,
-          angle,
-          radius,
-          speed,
-          hue,
-          size: 2 + Math.random() * 4,
-          opacity: 0.3 + Math.random() * 0.5,
-          pulse: Math.random() * Math.PI * 2,
-        });
-      }
-    };
-    createParticles();
+    // Fill background ONLY if it's a solid color (skip for 'transparent')
+    if (backgroundColor !== "transparent" && !backgroundColor.startsWith("rgba(0,0,0,0)")) {
+      ctx.fillStyle = backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+    drawParticles(ctx);
+    renderGlow(canvas, ctx);
+    renderToScreen(canvas, ctx);
 
-      const centerX = width / 2 + mousePosition.x * 150;
-      const centerY = height / 2 + mousePosition.y * 150;
+    animationFrameId.current = window.requestAnimationFrame(() =>
+      draw(canvas, ctx),
+    );
+  };
 
-      particlesRef.current.forEach((p) => {
-        const dx = p.x - centerX;
-        const dy = p.y - centerY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx);
-        const newAngle = angle + p.speed * (1 + (dist / Math.max(width, height)) * 0.5);
-        const newRadius = dist + Math.sin(p.pulse) * 0.5;
-        p.pulse += 0.02;
+  const drawParticles = (ctx: CanvasRenderingContext2D) => {
+    for (let i = 0; i < particlePropsLength; i += particlePropCount) {
+      updateParticle(i, ctx);
+    }
+  };
 
-        p.x += (centerX + Math.cos(newAngle) * newRadius - p.x) * 0.02;
-        p.y += (centerY + Math.sin(newAngle) * newRadius - p.y) * 0.02;
+  const updateParticle = (i: number, ctx: CanvasRenderingContext2D) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-        const alpha = p.opacity * (0.5 + 0.5 * (1 - dist / Math.max(width, height) * 0.8));
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * (0.5 + 0.5 * (1 - dist / Math.max(width, height) * 0.8)), 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, ${particleSaturation}%, ${particleLightness}%, ${alpha})`;
-        ctx.fill();
+    let i2 = 1 + i,
+      i3 = 2 + i,
+      i4 = 3 + i,
+      i5 = 4 + i,
+      i6 = 5 + i,
+      i7 = 6 + i,
+      i8 = 7 + i,
+      i9 = 8 + i;
+    let n, x, y, vx, vy, life, ttl, speed, x2, y2, radius, hue;
 
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-        glow.addColorStop(0, `hsla(${p.hue}, ${particleSaturation}%, ${particleLightness}%, ${alpha * 0.5})`);
-        glow.addColorStop(1, `hsla(${p.hue}, ${particleSaturation}%, ${particleLightness}%, 0)`);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
-      });
+    x = particleProps[i];
+    y = particleProps[i2];
+    n = noise3D(x * xOff, y * yOff, tick * zOff) * noiseSteps * TAU;
+    vx = lerp(particleProps[i3], Math.cos(n), 0.5);
+    vy = lerp(particleProps[i4], Math.sin(n), 0.5);
+    life = particleProps[i5];
+    ttl = particleProps[i6];
+    speed = particleProps[i7];
+    x2 = x + vx * speed;
+    y2 = y + vy * speed;
+    radius = particleProps[i8];
+    hue = particleProps[i9];
 
-      // Connecting lines
-      for (let i = 0; i < particlesRef.current.length; i++) {
-        for (let j = i + 1; j < particlesRef.current.length; j++) {
-          const dx = particlesRef.current[i].x - particlesRef.current[j].x;
-          const dy = particlesRef.current[i].y - particlesRef.current[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            const opacity = (1 - dist / 100) * 0.1;
-            ctx.beginPath();
-            ctx.moveTo(particlesRef.current[i].x, particlesRef.current[i].y);
-            ctx.lineTo(particlesRef.current[j].x, particlesRef.current[j].y);
-            ctx.strokeStyle = `hsla(${baseHue}, ${particleSaturation}%, ${particleLightness + 10}%, ${opacity})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
+    drawParticle(x, y, x2, y2, life, ttl, radius, hue, ctx);
 
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    animate();
+    life++;
+
+    particleProps[i] = x2;
+    particleProps[i2] = y2;
+    particleProps[i3] = vx;
+    particleProps[i4] = vy;
+    particleProps[i5] = life;
+
+    (checkBounds(x, y, canvas) || life > ttl) && initParticle(i);
+  };
+
+  const drawParticle = (
+    x: number,
+    y: number,
+    x2: number,
+    y2: number,
+    life: number,
+    ttl: number,
+    radius: number,
+    hue: number,
+    ctx: CanvasRenderingContext2D,
+  ) => {
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineWidth = radius;
+    ctx.strokeStyle = `hsla(${hue},100%,60%,${fadeInOut(life, ttl)})`;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.closePath();
+    ctx.restore();
+  };
+
+  const checkBounds = (x: number, y: number, canvas: HTMLCanvasElement) => {
+    return x > canvas.width || x < 0 || y > canvas.height || y < 0;
+  };
+
+  const resize = (
+    canvas: HTMLCanvasElement,
+    ctx?: CanvasRenderingContext2D,
+  ) => {
+    const { innerWidth, innerHeight } = window;
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+    center[0] = 0.5 * canvas.width;
+    center[1] = 0.5 * canvas.height;
+  };
+
+  const renderGlow = (
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+  ) => {
+    ctx.save();
+    ctx.filter = "blur(8px) brightness(200%)";
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(canvas, 0, 0);
+    ctx.restore();
+
+    ctx.save();
+    ctx.filter = "blur(4px) brightness(200%)";
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(canvas, 0, 0);
+    ctx.restore();
+  };
+
+  const renderToScreen = (
+    canvas: HTMLCanvasElement,
+    ctx: CanvasRenderingContext2D,
+  ) => {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.drawImage(canvas, 0, 0);
+    ctx.restore();
+  };
+
+  const handleResize = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (canvas && ctx) {
+      resize(canvas, ctx);
+    }
+  };
+
+  useEffect(() => {
+    setup();
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-      cancelAnimationFrame(animationRef.current);
+      window.removeEventListener("resize", handleResize);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
     };
-  }, [particleCount, baseHue, particleSaturation, particleLightness, mousePosition]);
+  }, []);
 
   return (
-    <div ref={containerRef} className={`fixed inset-0 w-full h-full overflow-hidden ${className}`} style={{ background: backgroundColor }}>
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-      <div className="relative z-10 h-full flex flex-col items-center justify-center">
-        {children}
+    <div className={cn("relative h-full w-full", props.containerClassName)}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        ref={containerRef}
+        className="absolute inset-0 z-0 flex h-full w-full items-center justify-center bg-transparent"
+      >
+        <canvas ref={canvasRef}></canvas>
+      </motion.div>
+
+      <div className={cn("relative z-10", props.className)}>
+        {props.children}
       </div>
     </div>
   );
-}
+};
