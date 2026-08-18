@@ -2,12 +2,17 @@
 "use client";
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AuroraBackground } from '../components/ui/aurora-background';
+import { ShootingStars } from '../components/ui/shooting-stars';
+import { StarsBackground } from '../components/ui/stars-background';
 
 export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const [textIndex, setTextIndex] = useState(0);
+  const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+  const sectionRef = useRef<HTMLElement>(null);
 
   const texts = [
     'Aspiring Business Analyst',
@@ -27,101 +32,210 @@ export default function Hero() {
     return () => clearInterval(interval);
   }, [texts.length]);
 
+  // Track mouse position for interactive effects
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        setMousePosition({ x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) });
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <section className="min-h-screen flex items-center max-w-5xl mx-auto px-6 pt-24 pb-12 gap-10">
-      {/* LEFT: Profile Photo */}
+    <section 
+      ref={sectionRef} 
+      className="relative min-h-screen w-full overflow-hidden flex items-center justify-center"
+    >
+      {/* Aurora Background (slightly dimmed for spotlight effect) */}
+      <div className="absolute inset-0 w-full h-full opacity-60">
+        <AuroraBackground className="w-full h-full" />
+      </div>
+
+      {/* ✨ CINEMATIC MOVIE LIGHT — dramatic spotlight that follows cursor */}
       <div 
-        className="hidden md:block shrink-0"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="absolute inset-0 pointer-events-none transition-all duration-100"
+        style={{
+          background: `
+            radial-gradient(
+              900px at ${mousePosition.x * 100}% ${mousePosition.y * 100}%,
+              rgba(139, 92, 246, 0.6) 0%,
+              rgba(79, 172, 254, 0.3) 30%,
+              rgba(139, 92, 246, 0.05) 60%,
+              transparent 80%
+            )
+          `,
+          opacity: 0.95,
+          filter: 'blur(20px)',
+          mixBlendMode: 'screen',
+        }}
+      />
+
+      {/* ✨ Second layer — warm movie light glow */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-all duration-150"
+        style={{
+          background: `
+            radial-gradient(
+              600px at ${mousePosition.x * 100}% ${mousePosition.y * 100}%,
+              rgba(255, 255, 255, 0.15) 0%,
+              rgba(255, 200, 200, 0.05) 50%,
+              transparent 70%
+            )
+          `,
+          opacity: 0.8,
+          filter: 'blur(40px)',
+          mixBlendMode: 'lighten',
+        }}
+      />
+
+      {/* ✨ Vignette effect — darkens edges for cinematic feel */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `
+            radial-gradient(
+              ellipse at center,
+              transparent 50%,
+              rgba(0, 0, 0, 0.6) 100%
+            )
+          `,
+        }}
+      />
+
+      {/* Shooting Stars */}
+      <div className="absolute inset-0 pointer-events-none">
+        <ShootingStars
+          starColor="#a78bfa"
+          trailColor="#60a5fa"
+          minSpeed={25}
+          maxSpeed={55}
+          minDelay={150}
+          maxDelay={800}
+          starWidth={18}
+          starHeight={3}
+          cursorX={mousePosition.x}
+          cursorY={mousePosition.y}
+        />
+      </div>
+
+      {/* Stars Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <StarsBackground
+          starDensity={0.0004}
+          allStarsTwinkle={true}
+          twinkleProbability={0.95}
+          minTwinkleSpeed={0.2}
+          maxTwinkleSpeed={1.5}
+          parallaxX={mousePosition.x}
+          parallaxY={mousePosition.y}
+        />
+      </div>
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0.0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
+        className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center gap-10"
       >
-        <div className="w-80 h-105 rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg transition-transform duration-300 hover:scale-105">
-          <Image
-            src={isHovered ? "/profile2.jpg" : "/profile.jpg"}
-            alt="Jeric Lique"
-            width={320}
-            height={420}
-            className="w-full h-full object-cover transition-opacity duration-300"
-            priority
-          />
+        {/* LEFT: Profile Photo */}
+        <div 
+          className="hidden md:block shrink-0"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="w-80 h-[440px] rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg transition-transform duration-300 hover:scale-105">
+            <Image
+              src={isHovered ? "/profile2.jpg" : "/profile.jpg"}
+              alt="Jeric Lique"
+              width={320}
+              height={440}
+              className="w-full h-full object-cover transition-opacity duration-300"
+              priority
+            />
+          </div>
         </div>
-      </div>
 
-      {/* RIGHT: Content */}
-      <div className="flex-1">
-        <div className="text-sm font-semibold text-blue-700 tracking-wider uppercase mb-2 h-6">
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={textIndex}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.5 }}
-              className="text-blue-700"
+        {/* RIGHT: Content */}
+        <div className="flex-1">
+          <div className="text-base font-semibold text-blue-400 tracking-wider uppercase mb-2 h-7">
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={textIndex}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.5 }}
+                className="text-blue-400"
+              >
+                {texts[textIndex]}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+
+          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight mb-1 glow-text whitespace-nowrap">
+            Hi, I'm Jeric Agojo Lique
+          </h1>
+
+          <p className="text-base text-gray-300 italic mb-3">
+            but most people call me <span className="text-blue-400 font-semibold not-italic">Jec</span>
+          </p>
+
+          <p className="text-xl text-gray-300 font-medium mb-3">
+            Aspiring Business Analyst · Data & Solutions Enthusiast
+          </p>
+
+          <p className="text-base text-gray-300 max-w-2xl mb-4 leading-relaxed tracking-wide">
+            BS Information Technology student at De La Salle Lipa with a growing passion for data analytics, business strategy, and building solutions that connect business and technology with real-world needs. Currently learning full-stack development through AI-assisted projects — including our thesis on developing a smart parking system. I'm bubbly, collaborative, and believe that good communication and trust make the best projects happen. Eager to learn, grow, and contribute meaningfully.
+          </p>
+
+          <p className="text-base text-gray-300 max-w-2xl leading-relaxed mb-4 whitespace-nowrap">
+            Let's build something awesome together and{' '}
+            <span className="font-bold text-white glow-text">
+              I'd love to hear about your project!
+            </span>
+          </p>
+
+          <div className="flex gap-4 flex-wrap">
+            <a
+              href="/experience"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-base shadow-sm"
             >
-              {texts[textIndex]}
-            </motion.span>
-          </AnimatePresence>
+              View My Work
+            </a>
+            <a
+              href="/projects"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-base shadow-sm"
+            >
+              View Projects
+            </a>
+            <a
+              href="/contact"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-base shadow-sm"
+            >
+              Work With Me
+            </a>
+          </div>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-1 glow-text whitespace-nowrap">
-          Hi, I'm Jeric Agojo Lique
-        </h1>
-
-        <p className="text-sm text-gray-400 italic mb-3">
-          but most people call me <span className="text-blue-400 font-semibold not-italic">Jec</span>
-        </p>
-
-        <p className="text-lg text-gray-300 font-medium mb-3">
-          Aspiring Business Analyst · Data & Solutions Enthusiast
-        </p>
-
-        <p className="text-gray-300 text-sm max-w-lg mb-4 leading-relaxed">
-          BS Information Technology student at De La Salle Lipa with a growing passion for data analytics, business strategy, and building solutions that connect business and technology with real-world needs. Currently learning full-stack development through AI-assisted projects — including our thesis on developing a smart parking system. I'm bubbly, collaborative, and believe that good communication and trust make the best projects happen. Eager to learn, grow, and contribute meaningfully.
-        </p>
-
-        {/* ✅ Tagline now forced to a single line */}
-        <p className="text-gray-300 text-sm max-w-lg leading-relaxed mb-4 whitespace-nowrap">
-          Let's build something awesome together and{' '}
-          <span className="font-bold text-white glow-text">
-            I'd love to hear about your project!
-          </span>
-        </p>
-
-        <div className="flex gap-4 flex-wrap">
-          <a
-            href="/experience"
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
-          >
-            View My Work
-          </a>
-          <a
-            href="/projects"
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
-          >
-            View Projects
-          </a>
-          <a
-            href="/contact"
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm shadow-sm"
-          >
-            Work With Me
-          </a>
+        {/* Mobile Photo */}
+        <div className="md:hidden flex justify-center mt-8">
+          <div className="w-48 h-56 rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg">
+            <Image
+              src="/profile.jpeg"
+              alt="Jeric Lique"
+              width={192}
+              height={224}
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
-      </div>
-
-      {/* Mobile Photo */}
-      <div className="md:hidden flex justify-center mt-8">
-        <div className="w-48 h-56 rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg">
-          <Image
-            src="/profile.jpeg"
-            alt="Jeric Lique"
-            width={192}
-            height={224}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
