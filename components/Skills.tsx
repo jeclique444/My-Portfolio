@@ -4,7 +4,6 @@
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
-// ✅ Footer import removed
 import { Vortex } from '@/components/ui/vortex';
 import { 
   FaPython, FaJs, FaReact, FaNode, FaDatabase, FaHtml5, FaCss3Alt, FaPhp, 

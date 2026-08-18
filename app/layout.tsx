@@ -14,11 +14,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-title: "Jeric Lique | IT Enthusiast",
+  title: "Jeric Lique | IT Enthusiast",
   description: "Jeric Lique - IT Professional Portfolio",
   icons: {
-    icon: "/star.svg", // ✅ Add star as favicon
-    apple: "/star.svg", // ✅ For Apple devices
+    icon: "/star.svg",
+    apple: "/star.svg",
+  },
+  
+  openGraph: {
+    title: "Jeric Lique | IT Enthusiast",
+    description: "Jeric Lique - IT Professional Portfolio",
+    url: "https://jeric-liquee-portfolio.vercel.app",
+    siteName: "Jeric Lique Portfolio",
+    images: [
+      {
+        url: "/preview.png",       
+        width: 1200,
+        height: 630,
+        alt: "Jeric Lique Portfolio Preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+ 
+  twitter: {
+    card: "summary_large_image",
+    title: "Jeric Lique | IT Enthusiast",
+    description: "Jeric Lique - IT Professional Portfolio",
+    images: ["/preview.png"],
   },
 };
 
