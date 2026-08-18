@@ -2,22 +2,13 @@
 "use client";
 
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion } from 'framer-motion';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const ref = useRef<HTMLElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <motion.footer
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="py-6 border-t border-gray-800 bg-black text-gray-400"
-    >
+    <footer className="py-6 border-t border-gray-800 bg-black text-gray-400">
       <div className="max-w-4xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3">
         <p className="text-sm">
           © {currentYear} Jeric Lique. All rights reserved.
@@ -55,6 +46,6 @@ export default function Footer() {
           </motion.a>
         </div>
       </div>
-    </motion.footer>
+    </footer>
   );
 }
