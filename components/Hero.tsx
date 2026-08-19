@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring } from 'framer-motion';
 import { AuroraBackground } from '../components/ui/aurora-background';
 import { ShootingStars } from '../components/ui/shooting-stars';
 import { StarsBackground } from '../components/ui/stars-background';
@@ -16,6 +16,11 @@ export default function Hero() {
   const [isMouseMoving, setIsMouseMoving] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   let timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Spring smoothing for the spotlight position
+  const springConfig = { damping: 25, stiffness: 200 };
+  const smoothX = useSpring(0.5, springConfig);
+  const smoothY = useSpring(0.5, springConfig);
 
   const texts = [
     'Aspiring Business Analyst',
@@ -42,12 +47,13 @@ export default function Hero() {
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = section.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      setMousePosition({
-        x: Math.max(0, Math.min(1, x)),
-        y: Math.max(0, Math.min(1, y)),
-      });
+      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+      smoothX.set(x);
+      smoothY.set(y);
+
+      setMousePosition({ x, y });
       setIsInSection(true);
       setIsMouseMoving(true);
 
@@ -56,14 +62,17 @@ export default function Hero() {
       }
       timeoutRef.current = setTimeout(() => {
         setIsMouseMoving(false);
+        smoothX.set(0.5);
+        smoothY.set(0.5);
         setMousePosition({ x: 0.5, y: 0.5 });
-      }, 5000); 
+      }, 5000);
     };
 
     const handleMouseLeave = () => {
       setIsInSection(false);
       setIsMouseMoving(false);
-      // Bumalik sa center paglabas ng section
+      smoothX.set(0.5);
+      smoothY.set(0.5);
       setMousePosition({ x: 0.5, y: 0.5 });
     };
 
@@ -77,18 +86,15 @@ export default function Hero() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [smoothX, smoothY]);
 
-  // ✅ Laging visible ang spotlight (opacity: 1)
-  const glowOpacity = 1;
-
-  // ✅ Display position: center kapag hindi gumagalaw ang mouse
-  const displayX = isMouseMoving ? mousePosition.x : 0.5;
-  const displayY = isMouseMoving ? mousePosition.y : 0.5;
+  // Use the smoothed values for display
+  const displayX = isMouseMoving ? smoothX.get() : 0.5;
+  const displayY = isMouseMoving ? smoothY.get() : 0.5;
 
   return (
-    <section 
-      ref={sectionRef} 
+    <section
+      ref={sectionRef}
       className="relative min-h-screen w-full overflow-hidden flex items-center justify-center"
     >
       {/* Aurora Background */}
@@ -96,10 +102,12 @@ export default function Hero() {
         <AuroraBackground className="w-full h-full" />
       </div>
 
-      {/* ✨ SPOTLIGHT — always visible, centers when mouse stops */}
-      <div 
-        className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
+      {/* Cinematic Spotlight – smoothed */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
+          willChange: 'transform, opacity',
+          transition: 'opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
           background: `
             radial-gradient(
               900px at ${displayX * 100}% ${displayY * 100}%,
@@ -109,17 +117,18 @@ export default function Hero() {
               transparent 80%
             )
           `,
-          opacity: glowOpacity,
+          opacity: 1,
           filter: 'blur(20px)',
           mixBlendMode: 'screen',
-          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
 
-      {/* ✨ Warm layer — always visible */}
-      <div 
-        className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
+      {/* Warm layer – smoothed */}
+      <div
+        className="absolute inset-0 pointer-events-none"
         style={{
+          willChange: 'transform, opacity',
+          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
           background: `
             radial-gradient(
               600px at ${displayX * 100}% ${displayY * 100}%,
@@ -131,12 +140,11 @@ export default function Hero() {
           opacity: 0.7,
           filter: 'blur(40px)',
           mixBlendMode: 'lighten',
-          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       />
 
-      {/* ✨ Vignette effect — darkens edges */}
-      <div 
+      {/* Vignette effect */}
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
@@ -186,7 +194,7 @@ export default function Hero() {
         className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col md:flex-row items-center gap-10"
       >
         {/* LEFT: Profile Photo */}
-        <div 
+        <div
           className="hidden md:block shrink-0"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}

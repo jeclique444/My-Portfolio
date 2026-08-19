@@ -109,12 +109,12 @@ export default function Education() {
       {/* GlitterWrap */}
       <div className="absolute inset-0 z-0">
         <GlitterWrap
-          particleCount={400}
+          particleCount={200}
           color1="#A855F7"
           color2="#7C3AED"
           color3="#C084FC"
           speed={4}
-          density={80}
+          density={40}
           starSize={16}
           focalDepth={12}
           turbulence={2}
