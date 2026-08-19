@@ -10,14 +10,42 @@ import AuraCursor from '@/components/ui/AuraCursor';
 
 export default function ExperiencePage() {
   const experiences = [
+    // 2025 – newest at top
     {
-      title: "Junior Operations Crew Analyst",
-      company: "McDonald's POS Systems",
+      title: "Full-Stack Developer & System Analyst",
+      company: "ParKada Thesis Project (with external client collaboration)",
+      date: "July 2025 - Present",
+      responsibilities: [
+        "Partnering with a local business client to develop a smart parking detection and reservation system tailored to their operational needs, with a focus on scalability and user experience.",
+        "Leading full-stack development using React, Node.js, and MySQL, implementing real-time parking monitoring and space allocation features.",
+        "Documenting system requirements, technical specifications, and user flows to bridge the gap between client expectations and development execution.",
+        "Working closely with the client to refine features based on feedback, ensuring the final product aligns with their business model and revenue goals.",
+        "Actively involved in preparing the system for funding proposals and pitch presentations, aiming for deployment and commercialization in the near future."
+      ]
+    },
+    {
+      title: "Business Analyst – E-Commerce Case Study",
+      company: "Isabelle Prints",
+      date: "Jan 2025 - June 2025",
+      responsibilities: [
+        "Collaborated with a local printing business to analyze their e-commerce operations and identify pain points in order processing, customer communication, and inventory tracking.",
+        "Conducted stakeholder interviews and documented business requirements, translating them into actionable recommendations for improving their online sales funnel.",
+        "Developed process flow diagrams and system recommendations to streamline order-to-delivery workflows, reducing manual errors and improving customer satisfaction.",
+        "Presented findings and proposed solutions to the business owner, including a roadmap for implementing a more efficient e-commerce platform.",
+        "Prepared documentation that served as the foundation for their transition to a more integrated digital sales system."
+      ]
+    },
+   
+    {
+      title: "Guest Experience Leader (GEL)",
+      company: "McDonald's",
       date: "Oct 2024 - March 2025",
       responsibilities: [
-        "Operated digital POS system and queue management software, processing daily transactions with high accuracy and reducing guest wait time during peak hours.",
-        "Trained 3 new crew members on POS navigation, order modification, and basic hardware troubleshooting, resulting in zero end-of-day discrepancies.",
-        "Reported system downtime and network irregularities through structured incident logs, enabling IT support to trace root causes and reduce recurring POS freezes."
+        "Engaged with guests to ensure a positive and welcoming experience, creating memorable moments that encouraged repeat visits.",
+        "Assisted customers in booking birthday parties and special events, communicating the available packages and successfully securing their 'yes' through clear and friendly conversations.",
+        "Reported inventory levels, queue status, and POS system irregularities to management, ensuring smooth day-to-day operations.",
+        "Trained new crew members on POS system navigation, order processing, and product updates, helping them feel confident and capable on the floor.",
+        "Stayed updated on new product launches and shared this information with the team to maintain consistent and accurate customer communication."
       ]
     },
     {
@@ -30,14 +58,16 @@ export default function ExperiencePage() {
         "Documented 15+ recurring technical issue patterns in a shared knowledge base, directly contributing to two root-cause fixes implemented by Macy's IT team."
       ]
     },
+    // 2022 – oldest at bottom
     {
-      title: "Freelance Web Developer & UI/UX Designer",
-      company: "Self-Employed / Various Clients",
-      date: "Jan 2024 - Present",
+      title: "Capstone Thesis Leader & Research Head",
+      company: "Pansol Integrated National High School",
+      date: "Aug 2022 - July 2023",
       responsibilities: [
-        "Designed and developed responsive websites for small businesses using Next.js, Tailwind CSS, and Framer Motion, improving client conversion rates by 25%.",
-        "Collaborated with clients to translate business requirements into intuitive user interfaces, delivering projects 20% faster than estimated timelines.",
-        "Implemented SEO best practices and performance optimizations, achieving 90+ Lighthouse scores across all projects."
+        "Led a team of 5 members in developing a research paper on creating paper from banana stems, contributing to school sustainability and waste reduction.",
+        "Organized schedules, meetings, and documentation requirements to ensure timely completion of all project milestones.",
+        "Presented research findings and secured the Best Researcher award for the project.",
+        "Coordinated with faculty advisers and school administration to align project goals with academic standards and requirements."
       ]
     }
   ];
@@ -60,7 +90,7 @@ export default function ExperiencePage() {
           />
         </div>
 
-        {/* Sticky header – with gap, fully blurred */}
+        {/* Sticky header */}
         <div className="sticky top-16 z-20 bg-[#302b63]/90 backdrop-blur-xl pb-6 border-b border-white/5">
           <div className="text-center pt-8">
             <h2 className="text-4xl md:text-5xl font-bold text-white">
@@ -95,13 +125,13 @@ export default function ExperiencePage() {
                 className="relative group"
               >
                 <motion.div
-  initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }}
-  animate={{ opacity: 1, x: 0 }}
-  transition={{ duration: 0.6, delay: index * 0.2 }}
-  className={`relative rounded-2xl border border-gray-700/50 bg-[#302b63] p-6 md:p-8 transition-all duration-500 hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] ${
-    index === 0 ? 'mt-18' : ''
-  }`}
->
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.2 }}
+                  className={`relative rounded-2xl border border-gray-700/50 bg-[#302b63] p-6 md:p-8 transition-all duration-500 hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:scale-[1.02] ${
+                    index === 0 ? 'mt-18' : ''
+                  }`}
+                >
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 -z-10" />
 
                   <div className="flex flex-col md:flex-row md:items-start gap-4">
