@@ -1,10 +1,10 @@
 // /app/skills/page.tsx
 "use client";
 
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
-import { Vortex } from '@/components/ui/vortex';
 import { 
   FaPython, FaJs, FaReact, FaNode, FaDatabase, FaHtml5, FaCss3Alt, FaPhp, 
   FaGitAlt, FaDocker, FaBootstrap, FaJava, FaAws, FaGithub, FaCode, 
@@ -15,6 +15,11 @@ import {
   SiTypescript, SiTailwindcss, SiJquery, SiPostgresql, SiMongodb, 
   SiFirebase, SiVercel, SiApache, SiNginx, SiJira
 } from 'react-icons/si';
+
+const Vortex = dynamic(
+  () => import('@/components/ui/vortex').then((mod) => mod.Vortex),
+  { ssr: false, loading: () => <div className="absolute inset-0 pointer-events-none" /> }
+);
 
 export default function SkillsPage() {
   const [isTechPaused, setIsTechPaused] = useState(false);
@@ -76,18 +81,16 @@ export default function SkillsPage() {
         ref={sectionRef}
         className="relative flex-1 pt-28 pb-20 w-full px-2 overflow-hidden"
       >
-        {/* Vortex Background */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <Vortex
             backgroundColor="transparent"
             rangeY={250}
-            particleCount={600}
+            particleCount={300}
             baseHue={250}
             className="w-full h-full"
           />
         </div>
 
-        {/* Content */}
         <div className="relative z-10">
           {/* Section Header */}
           <motion.div
@@ -104,6 +107,7 @@ export default function SkillsPage() {
             <p className="text-gray-400 text-lg">What I bring to the table</p>
           </motion.div>
 
+          
           {/* TECHNICAL SKILLS */}
           <div className="mb-12 w-full">
             <motion.h3
@@ -124,6 +128,11 @@ export default function SkillsPage() {
                 className={`flex gap-6 py-4 whitespace-nowrap w-full scroll-tech ${
                   isTechPaused ? 'scroll-paused' : ''
                 }`}
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                }}
               >
                 {doubledSkills.map((skill, index) => {
                   const Icon = skill.icon;
@@ -159,8 +168,7 @@ export default function SkillsPage() {
                     </motion.div>
                   );
                 })}
-              </div>
-
+               </div>
               <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-slate-950 to-transparent pointer-events-none"></div>
               <div className="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-slate-950 to-transparent pointer-events-none"></div>
             </div>
@@ -186,6 +194,11 @@ export default function SkillsPage() {
                 className={`flex gap-4 py-4 whitespace-nowrap w-full scroll-soft ${
                   isSoftPaused ? 'scroll-paused' : ''
                 }`}
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
+                }}
               >
                 {doubledSoftSkills.map((skill, index) => {
                   const Icon = skill.icon;
@@ -222,14 +235,13 @@ export default function SkillsPage() {
                   );
                 })}
               </div>
-
+              
               <div className="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-slate-950 to-transparent pointer-events-none"></div>
               <div className="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-slate-950 to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
       </section>
-      {/* ✅ Footer removed */}
     </div>
   );
 }

@@ -84,10 +84,10 @@ html {
 }
 
 .scroll-tech {
-  animation: scroll-tech 35s linear infinite;
+  animation: scroll-tech 40s linear infinite; /* was 35s */
 }
 .scroll-soft {
-  animation: scroll-soft 28s linear infinite;
+  animation: scroll-soft 32s linear infinite; /* was 28s */
 }
 .scroll-paused {
   animation-play-state: paused;

@@ -17,8 +17,8 @@ export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   let timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Spring smoothing for the spotlight position
-  const springConfig = { damping: 25, stiffness: 200 };
+  // ✅ SMOOTHER SPRING – lower stiffness, higher damping
+  const springConfig = { damping: 35, stiffness: 120 }; // was { damping: 25, stiffness: 200 }
   const smoothX = useSpring(0.5, springConfig);
   const smoothY = useSpring(0.5, springConfig);
 
@@ -128,7 +128,7 @@ export default function Hero() {
         className="absolute inset-0 pointer-events-none"
         style={{
           willChange: 'transform, opacity',
-          transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'all 0.9s cubic-bezier(0.4, 0, 0.2, 1)', // ✅ slower transition
           background: `
             radial-gradient(
               600px at ${displayX * 100}% ${displayY * 100}%,
@@ -186,7 +186,7 @@ export default function Hero() {
         />
       </div>
 
-      {/* Content */}
+      {/* Content – unchanged */}
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

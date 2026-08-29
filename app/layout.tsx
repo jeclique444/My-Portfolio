@@ -13,7 +13,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
+  metadataBase: new URL('https://jeric-liquee-portfolio.vercel.app'), // your production URL
   title: "Jeric Lique | IT Enthusiast",
   description: "Jeric Lique - IT Professional Portfolio",
   icons: {
