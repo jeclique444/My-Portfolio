@@ -236,7 +236,7 @@ const Contact = memo(function Contact() {
   return (
     <section
       id="contact"
-      className="relative min-h-screen w-full pt-24 pb-20 px-4 md:px-8 scroll-mt-16 flex flex-col bg-black/[0.96] antialiased bg-grid-white/[0.02] overflow-hidden"
+      className="relative min-h-screen w-full pt-24 pb-20 px-4 md:px-8 scroll-mt-16 flex flex-col bg-slate-950 antialiased bg-grid-white/[0.02] overflow-hidden"
     >
       <div className="absolute inset-0 z-0 pointer-events-none">
         <AuraCursor {...auraProps} />

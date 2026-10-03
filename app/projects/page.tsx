@@ -18,9 +18,9 @@ export default function ProjectsPage() {
       title: "ParKada: Smart Parking Detection & Reservation",
       description: "Thesis project focused on locating parking detection and reservation in Lipa City Downtown using real-time monitoring and space allocation.",
       tech: ["React", "Node.js", "MySQL", "REST API"],
-      image: "/projects/Parkada.jpg",
+      image: "/projects/park.png",
       github: "https://github.com/yourusername/parking-system",
-      live: "https://admin.parkada.site/admin",
+      live: "https://www.parkada.site/", 
       featured: true,
       detailedDescription: "A comprehensive smart parking system that allows users to detect available parking spaces in real-time and reserve spots in advance. The system includes an admin dashboard for monitoring parking occupancy, managing reservations, and generating reports on parking usage patterns."
     },
