@@ -25,14 +25,15 @@ export default function ProjectsPage() {
       detailedDescription: "A comprehensive smart parking system that allows users to detect available parking spaces in real-time and reserve spots in advance. The system includes an admin dashboard for monitoring parking occupancy, managing reservations, and generating reports on parking usage patterns."
     },
     {
-      title: "Portfolio Website",
-      description: "Personal portfolio built with Next.js, TypeScript, and Tailwind CSS to showcase my skills and projects.",
-      tech: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
-      image: "/projects/portfolio.jpg",
-      github: "https://github.com/jeclique444/My-Portfolio",
-      live: "https://jeric-lique-portfolio.vercel.app",
+      // ✅ UPDATED: Replaced "Portfolio Website" with "Judiel Store"
+      title: "Judiel Store",
+      description: "A simple e-commerce storefront built with HTML, CSS, and JavaScript, featuring product listings and a clean, responsive layout.",
+      tech: ["HTML", "CSS", "JavaScript"],
+      image: "/projects/judiel.png",
+      github: "", // Add your GitHub repo link if available
+      live: "https://tindahan-ni-judiel.onrender.com",
       featured: false,
-      detailedDescription: "A modern, responsive portfolio website built with Next.js, TypeScript, and Tailwind CSS. Features include dark mode, smooth animations with Framer Motion, and a contact form integrated with Web3Forms for email submissions."
+      detailedDescription: "Judiel Store is a lightweight e-commerce web application built entirely with HTML, CSS, and vanilla JavaScript. It includes product display cards, a shopping cart interface, and a responsive design that works across devices. The project demonstrates core front-end fundamentals without any frameworks, focusing on clean code structure and user-friendly navigation."
     },
     {
       title: "RootEd: Plant. Learn. Sustain.",
@@ -266,4 +267,4 @@ export default function ProjectsPage() {
       <Footer />
     </>
   );
-}
+} 
