@@ -1,14 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useEffect, useRef } from "react";
 
-interface StarProps {
+interface Star {
   x: number;
   y: number;
   radius: number;
@@ -16,14 +11,22 @@ interface StarProps {
   twinkleSpeed: number | null;
 }
 
+type ParallaxRef = React.MutableRefObject<{ x: number; y: number }>;
+
 interface StarBackgroundProps {
   starDensity?: number;
   allStarsTwinkle?: boolean;
   twinkleProbability?: number;
   minTwinkleSpeed?: number;
   maxTwinkleSpeed?: number;
-  parallaxX?: number;   // Mouse X (0–1) for parallax shift
-  parallaxY?: number;   // Mouse Y (0–1) for parallax shift
+  /** Mouse X (0–1). Works, but prefer `parallaxRef` so the parent never re-renders on mousemove. */
+  parallaxX?: number;
+  /** Mouse Y (0–1). */
+  parallaxY?: number;
+  /** Preferred: a ref the parent updates on mousemove, e.g. { current: { x: 0.5, y: 0.5 } } */
+  parallaxRef?: ParallaxRef;
+  /** Stars don't need 60fps. */
+  maxFps?: number;
   className?: string;
 }
 
@@ -35,116 +38,145 @@ export const StarsBackground: React.FC<StarBackgroundProps> = ({
   maxTwinkleSpeed = 1,
   parallaxX = 0.5,
   parallaxY = 0.5,
+  parallaxRef,
+  maxFps = 30,
   className,
 }) => {
-  const [stars, setStars] = useState<StarProps[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  const generateStars = useCallback(
-    (width: number, height: number): StarProps[] => {
-      const area = width * height;
-      const numStars = Math.floor(area * starDensity);
-      return Array.from({ length: numStars }, () => {
-        const shouldTwinkle =
-          allStarsTwinkle || Math.random() < twinkleProbability;
+  // Parallax values live in refs, so changing them never restarts the loop.
+  const propParallax = useRef({ x: parallaxX, y: parallaxY });
+  propParallax.current.x = parallaxX;
+  propParallax.current.y = parallaxY;
+  const externalParallax = useRef(parallaxRef);
+  externalParallax.current = parallaxRef;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    let stars: Star[] = [];
+    let lastW = 0;
+    let lastH = 0;
+    let raf = 0;
+    let last = 0;
+    let visible = true;
+    const minDelta = 1000 / maxFps - 1;
+
+    const generate = (width: number, height: number): Star[] => {
+      const num = Math.floor(width * height * starDensity);
+      return Array.from({ length: num }, () => {
+        const twinkle = allStarsTwinkle || Math.random() < twinkleProbability;
         return {
           x: Math.random() * width,
           y: Math.random() * height,
           radius: Math.random() * 0.05 + 0.5,
           opacity: Math.random() * 0.5 + 0.5,
-          twinkleSpeed: shouldTwinkle
+          twinkleSpeed: twinkle
             ? minTwinkleSpeed +
               Math.random() * (maxTwinkleSpeed - minTwinkleSpeed)
             : null,
         };
       });
-    },
-    [
-      starDensity,
-      allStarsTwinkle,
-      twinkleProbability,
-      minTwinkleSpeed,
-      maxTwinkleSpeed,
-    ]
-  );
-
-  // Set up canvas and resize observer
-  useEffect(() => {
-    const updateCanvas = () => {
-      if (canvasRef.current) {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-
-        const { width, height } = canvas.getBoundingClientRect();
-        canvas.width = width;
-        canvas.height = height;
-        setDimensions({ width, height });
-        setStars(generateStars(width, height));
-      }
     };
 
-    updateCanvas();
-
-    const resizeObserver = new ResizeObserver(updateCanvas);
-    if (canvasRef.current) {
-      resizeObserver.observe(canvasRef.current);
-    }
-
-    return () => {
-      if (canvasRef.current) {
-        resizeObserver.unobserve(canvasRef.current);
-      }
-    };
-  }, [generateStars]);
-
-  // Animation loop with parallax
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animationFrameId: number;
-
-    const render = () => {
+    const render = (now: number) => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Apply parallax shift (max 20px)
-      const shiftX = (parallaxX - 0.5) * 40;
-      const shiftY = (parallaxY - 0.5) * 40;
+      const par = externalParallax.current?.current ?? propParallax.current;
+      const shiftX = (par.x - 0.5) * 40;
+      const shiftY = (par.y - 0.5) * 40;
+      const t = now * 0.001;
 
-      stars.forEach((star) => {
-        const x = star.x + shiftX;
-        const y = star.y + shiftY;
-        ctx.beginPath();
-        ctx.arc(x, y, star.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-        ctx.fill();
-
-        if (star.twinkleSpeed !== null) {
-          star.opacity =
-            0.5 +
-            Math.abs(Math.sin((Date.now() * 0.001) / star.twinkleSpeed) * 0.5);
+      ctx.fillStyle = "#fff";
+      for (let i = 0; i < stars.length; i++) {
+        const s = stars[i];
+        if (s.twinkleSpeed !== null && !reduceMotion) {
+          s.opacity = 0.5 + Math.abs(Math.sin(t / s.twinkleSpeed) * 0.5);
         }
-      });
-
-      animationFrameId = requestAnimationFrame(render);
+        // globalAlpha + fillRect is much cheaper than a new path + color string per star
+        ctx.globalAlpha = s.opacity;
+        const d = s.radius * 2;
+        ctx.fillRect(s.x + shiftX - s.radius, s.y + shiftY - s.radius, d, d);
+      }
+      ctx.globalAlpha = 1;
     };
 
-    render();
+    const loop = (now: number) => {
+      raf = requestAnimationFrame(loop);
+      if (now - last < minDelta) return;
+      last = now;
+      render(now);
+    };
+    const start = () => {
+      if (raf || reduceMotion) return;
+      raf = requestAnimationFrame(loop);
+    };
+    const stop = () => {
+      if (!raf) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const sync = () => (visible && !document.hidden ? start() : stop());
+
+    const resize = () => {
+      const { width, height } = canvas.getBoundingClientRect();
+      if (width === 0 || height === 0) return;
+      // Ignore tiny height changes (mobile address bar) so stars don't regenerate/flicker.
+      if (Math.abs(width - lastW) < 2 && Math.abs(height - lastH) < 120) return;
+      lastW = width;
+      lastH = height;
+      canvas.width = Math.round(width);
+      canvas.height = Math.round(height);
+      stars = generate(canvas.width, canvas.height);
+      if (reduceMotion) render(0); // static single frame
+    };
+
+    resize();
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        sync();
+      },
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+    document.addEventListener("visibilitychange", sync);
+
+    start();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      stop();
+      ro.disconnect();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", sync);
     };
-  }, [stars, parallaxX, parallaxY]);
+  }, [
+    starDensity,
+    allStarsTwinkle,
+    twinkleProbability,
+    minTwinkleSpeed,
+    maxTwinkleSpeed,
+    maxFps,
+  ]);
 
   return (
     <canvas
       ref={canvasRef}
-      className={cn("h-full w-full absolute inset-0 pointer-events-none", className)}
+      className={cn(
+        "h-full w-full absolute inset-0 pointer-events-none",
+        className
+      )}
     />
   );
 };
