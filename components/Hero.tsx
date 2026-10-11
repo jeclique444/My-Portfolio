@@ -76,7 +76,7 @@ const ProfilePhoto = memo(function ProfilePhoto() {
 
   return (
     <div
-      className="hidden lg:block shrink-0 w-80"
+      className="hidden md:block shrink-0 w-72 lg:w-80"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -196,7 +196,7 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-dvh w-full overflow-hidden flex items-center justify-center bg-slate-950 py-24 md:py-0"
+      className="relative w-full overflow-hidden flex items-center justify-center bg-slate-950 pt-24 pb-14 md:py-28 lg:py-0 lg:min-h-dvh"
     >
       {/* Static glow: costs almost nothing, shown on every device */}
       <div
@@ -298,15 +298,15 @@ export default function Hero() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.7, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-12"
+        className="relative z-10 w-full max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-stretch gap-8 lg:gap-12"
       >
         <ProfilePhoto />
 
         {/* On desktop the first line and the buttons line up with the photo's top and bottom */}
-        <div className="flex-1 min-w-0 flex flex-col gap-5 lg:gap-4 lg:justify-between">
+        <div className="flex-1 min-w-0 flex flex-col gap-5 md:gap-4 md:justify-between text-center md:text-left">
           <div>
             <RotatingText />
-            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold text-white leading-tight mb-1 glow-text">
+            <h1 className="text-[1.75rem] sm:text-4xl md:text-[2rem] lg:text-5xl xl:text-6xl font-bold text-white leading-tight mb-1 glow-text">
               Hi, I&apos;m Jeric Agojo Lique
             </h1>
             <p className="text-base lg:text-lg text-gray-300 italic">
@@ -316,11 +316,11 @@ export default function Hero() {
           </div>
 
           <div>
-            <p className="text-lg sm:text-xl xl:text-2xl text-gray-300 font-medium mb-3">
+            <p className="text-base sm:text-lg md:text-base lg:text-xl xl:text-2xl text-gray-300 font-medium mb-3">
               Aspiring Business Analyst · Data & Solutions Enthusiast
             </p>
 
-            <p className="text-base lg:text-lg text-gray-300 mb-4 leading-relaxed tracking-wide">
+            <p className="text-[15px] sm:text-base md:text-sm lg:text-lg text-gray-300 mb-4 leading-relaxed md:tracking-normal lg:tracking-wide">
               BS Information Technology student at De La Salle Lipa with a
               growing passion for data analytics, business strategy, and
               building solutions that connect business and technology with
@@ -331,7 +331,7 @@ export default function Hero() {
               happen. Eager to learn, grow, and contribute meaningfully.
             </p>
 
-            <p className="text-base lg:text-lg text-gray-300 leading-relaxed">
+            <p className="text-[15px] sm:text-base md:text-sm lg:text-lg text-gray-300 leading-relaxed">
               Let&apos;s build something great together and{" "}
               <span className="font-bold text-white glow-text">
                 I&apos;d love to hear about your project!
@@ -339,7 +339,7 @@ export default function Hero() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap lg:flex-nowrap gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:max-w-md sm:mx-auto md:max-w-none md:mx-0 lg:flex lg:flex-nowrap">
             <Link href="/experience" className={BTN}>
               View My Work
             </Link>
@@ -363,15 +363,14 @@ export default function Hero() {
           </div>
         </div>
 
-              {/* Phone / tablet photo */}
-        <div className="lg:hidden flex justify-center">
-          <div className="relative w-48 h-56 rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg">
+        {/* Phone / tablet photo */}
+        <div className="order-first md:hidden flex justify-center">
+          <div className="relative w-52 h-60 rounded-2xl overflow-hidden border-4 border-blue-100 shadow-lg">
             <Image
               src="/profile.jpg"
               alt="Jeric Lique"
               fill
-              sizes="192px"
-              priority
+              sizes="208px"
               loading="eager"
               className="object-cover object-[50%_20%]"
             />
@@ -380,4 +379,4 @@ export default function Hero() {
       </motion.div>
     </section>
   );
-}
+} 
