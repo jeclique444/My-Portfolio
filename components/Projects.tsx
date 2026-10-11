@@ -42,7 +42,7 @@ const PROJECTS: Project[] = [
       "Thesis project focused on locating parking detection and reservation in Lipa City Downtown using real-time monitoring and space allocation.",
     tech: ["React", "Node.js", "MySQL", "REST API"],
     image: "/projects/park.png",
-    github: "https://github.com/ParKada/ParKada-Parking-App", // ← palitan ng totoong repo link
+    github: "https://github.com/ParKada/ParKada-Parking-App",
     live: "https://www.parkada.site/",
     featured: true,
     problem:
@@ -64,7 +64,7 @@ const PROJECTS: Project[] = [
       "A simple e-commerce storefront built with HTML, CSS, and JavaScript, featuring product listings and a clean, responsive layout.",
     tech: ["HTML", "CSS", "JavaScript"],
     image: "/projects/judiel.png",
-    github: "https://github.com/jeclique444/tindahan-ni-judiel", // walang link = hindi lalabas ang GitHub button
+    github: "https://github.com/jeclique444/tindahan-ni-judiel",
     live: "https://tindahan-ni-judiel.onrender.com",
     featured: false,
     highlights: [
@@ -82,7 +82,7 @@ const PROJECTS: Project[] = [
       "A personal advocacy project focused on environmental education, community action, and long-term tree care. Currently a web app with static, hard-coded data — continuously being developed and improved.",
     tech: ["React", "Express", "Render"],
     image: "/projects/rooted.jpg",
-    github: "https://github.com/jeclique444/rooted-app", // ← palitan ng totoong repo link
+    github: "https://github.com/jeclique444/rooted-app",
     live: "https://rooted-app-ku1q.onrender.com/",
     featured: false,
     problem:
@@ -100,6 +100,13 @@ const PROJECTS: Project[] = [
 
 // Placeholder links ("yourusername") are treated as missing, so no broken buttons.
 const hasRepo = (p: Project) => !!p.github && !p.github.includes("yourusername");
+
+// "Send Message" opens a Gmail compose window addressed to you, subject pre-filled.
+const CONTACT_EMAIL = "liquejericc@gmail.com";
+const gmailCompose = (title: string) =>
+  `https://mail.google.com/mail/u/0/?fs=1&to=${CONTACT_EMAIL}&su=${encodeURIComponent(
+    `Inquiry about ${title}`
+  )}&tf=cm`;
 
 // ─── Card ───────────────────────────────────────────────────────────────
 const ProjectCard = memo(function ProjectCard({
@@ -223,7 +230,7 @@ const ProjectModal = memo(function ProjectModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 cursor-default"
       onClick={onClose}
     >
       <motion.div
@@ -251,7 +258,7 @@ const ProjectModal = memo(function ProjectModal({
           <button
             onClick={onClose}
             aria-label="Close project details"
-            className="text-gray-400 hover:text-white transition p-2 rounded-full hover:bg-gray-800"
+            className="cursor-pointer text-gray-400 hover:text-white transition p-2 rounded-full hover:bg-gray-800"
           >
             <FaTimes className="w-5 h-5" />
           </button>
@@ -343,7 +350,7 @@ const ProjectModal = memo(function ProjectModal({
               href={project.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition"
+              className="cursor-pointer flex-1 text-center px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition"
             >
               Open Live Demo
             </a>
@@ -352,17 +359,17 @@ const ProjectModal = memo(function ProjectModal({
                 href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
+                className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
               >
                 <FaGithub className="w-4 h-4" />
                 View Code
               </a>
             )}
             <a
-              href={`mailto:liquejericc@gmail.com?subject=${encodeURIComponent(
-                `Inquiry about ${project.title}`
-              )}`}
-              className="flex-1 text-center px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
+              href={gmailCompose(project.title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer flex-1 text-center px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
             >
               Send Message
             </a>
@@ -374,7 +381,16 @@ const ProjectModal = memo(function ProjectModal({
 });
 
 // ─── Main ───────────────────────────────────────────────────────────────
-export default function Projects() {
+// Used on the home page AND on /projects.
+//   <Projects />                              → home page section
+//   <Projects id="projects-page" intense />   → /projects page (denser, stronger grid)
+export default function Projects({
+  id = "projects",
+  intense = false,
+}: {
+  id?: string;
+  intense?: boolean;
+}) {
   const tier = usePerformanceTier();
   // The grid exists only while this section is on screen (and only on capable desktops).
   const { ref, active } = useInView<HTMLElement>("200px");
@@ -392,7 +408,7 @@ export default function Projects() {
     <>
       <section
         ref={ref}
-        id="projects"
+        id={id}
         className="relative min-h-dvh w-full bg-slate-950 pt-4 pb-20 px-3 sm:px-4 scroll-mt-28 flex flex-col justify-center overflow-hidden"
       >
         {/* Cheap static glow for phones / weaker laptops / reduced motion */}
@@ -408,9 +424,9 @@ export default function Projects() {
               dotColor="#A78BFA"
               lineColor="#8B5CF6"
               trailColor="#7C3AED"
-              spacing={45}
-              radius={250}
-              strength={5}
+              spacing={intense ? 30 : 45}
+              radius={intense ? 500 : 250}
+              strength={intense ? 9 : 5}
               trail={true}
             />
           </div>
