@@ -52,9 +52,9 @@ const SHADING = true;
 const COLOR_SPEED = 0.125;
 const VELOCITY_DISSIPATION = 2;
 const PRESSURE = 1 / 20;
-const SIM_RESOLUTION = 96;        // was 128 — mas magaan
-const DYE_RESOLUTION = 800;       // was 1440 — 3.2× mas magaan
-const PRESSURE_ITERATIONS = 10;   // was 20 — kalahati ng shader passes
+const SIM_RESOLUTION = 96;
+const DYE_RESOLUTION = 800;
+const PRESSURE_ITERATIONS = 10;
 
 const DEFAULT_PALETTE = ["#A855F7", "#EC4899", "#3B82F6"];
 
@@ -401,10 +401,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
     }, []);
 
     useEffect(() => {
-        // ── FX TIER GUARD — skip sa low at off ───────────────────────────
-        const fxTier = document.documentElement.dataset.fx;
-        if (fxTier === "off" || fxTier === "low") return;
-
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -1104,13 +1100,7 @@ function __OriginkitBase_AuraCursor(props: Props) {
                 raf = 0;
                 return;
             }
-            // Stop kung naging low/off mid-session
-            if (document.documentElement.dataset.fx !== "high") {
-                raf = requestAnimationFrame(frame);
-                return;
-            }
             const now = performance.now();
-            // Cap sa ~30fps para hindi mabigat kahit sa High
             const dt = Math.min((now - lastUpdateTime) / 1000, 0.033);
             lastUpdateTime = now;
 
@@ -1249,5 +1239,5 @@ const __originkitPresetProps = {
 };
 
 export default function AuraCursor(props: Record<string, unknown>) {
-  return <__OriginkitBase_AuraCursor {...(__originkitPresetProps as Record<string, unknown>)} {...props} />;
+  return <__OriginkitBase_AuraCursor {...(__originkitPresetProps as Record<string, unknown>) } {...props} />;
 }

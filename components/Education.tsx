@@ -13,7 +13,6 @@ import {
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from "react";
-import { FaTimes } from "react-icons/fa";
 import { useInView } from "@/lib/useInView";
 import { usePerformanceTier } from "@/lib/usePerformanceTier";
 
@@ -106,7 +105,6 @@ const CertificateCard = memo(function CertificateCard({
 });
 
 // ─── Modal ────────────────────────────────────────────────────────────────
-// Always closable: visible cursor, X button, Close button, click outside, Esc.
 const CertificateModal = memo(function CertificateModal({
   cert,
   onClose,
@@ -135,38 +133,32 @@ const CertificateModal = memo(function CertificateModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      // cursor-default: guarantees a visible pointer even if an effect hid it
-      className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-default"
+      className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-2 sm:p-4 cursor-default"
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="relative w-full max-w-4xl max-h-[92dvh] overflow-y-auto bg-gray-900 border border-gray-700/50 rounded-2xl shadow-2xl"
+        className="relative w-[96vw] max-w-7xl h-[94dvh] flex flex-col bg-gray-900 border border-gray-700/50 rounded-2xl shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={onClose}
-          aria-label="Close certificate"
-          className="absolute top-3 right-3 z-10 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white transition cursor-pointer"
-        >
-          <FaTimes className="w-5 h-5" />
-        </button>
-
-        <div className="relative w-full aspect-video bg-black/40 p-4">
+        {/* Image fills all available height — object-contain keeps full certificate visible */}
+        <div className="relative flex-1 min-h-0 bg-black/40 p-3 sm:p-4">
           <div className="relative w-full h-full rounded-lg overflow-hidden border border-gray-600/30">
             <Image
               src={cert.image}
               alt={cert.name}
               fill
               className="object-contain"
-              sizes="(max-width: 768px) 100vw, 80vw"
+              sizes="96vw"
+              priority
             />
           </div>
         </div>
 
-        <div className="flex justify-center p-4 border-t border-gray-700/30">
+        {/* Close button pinned at bottom */}
+        <div className="flex justify-center p-3 sm:p-4 border-t border-gray-700/30 bg-gray-900/80">
           <button
             className="px-10 py-3 bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 hover:from-purple-300 hover:via-purple-400 hover:to-purple-500 rounded-full text-white text-lg font-semibold transition-all duration-300 focus:outline-none cursor-pointer shadow-lg shadow-purple-500/40 hover:shadow-purple-400/60"
             onClick={onClose}
@@ -182,7 +174,6 @@ const CertificateModal = memo(function CertificateModal({
 // ─── Main component ──────────────────────────────────────────────────────
 const Education = memo(function Education() {
   const tier = usePerformanceTier();
-  // Effects only run while this section is on screen.
   const { ref, active } = useInView<HTMLElement>("200px");
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -205,7 +196,6 @@ const Education = memo(function Education() {
   const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-6, 6]), spring);
   const shadowX = useSpring(useTransform(mouseX, [-0.5, 0.5], [-20, 20]), spring);
   const shadowY = useSpring(useTransform(mouseY, [-0.5, 0.5], [20, -20]), spring);
-  // Reactive shadow (the old template string was evaluated once and never updated)
   const boxShadow = useMotionTemplate`${shadowX}px ${shadowY}px 40px rgba(139, 92, 246, 0.2)`;
 
   const handleMouseMove = useCallback(
@@ -275,8 +265,7 @@ const Education = memo(function Education() {
         </div>
       )}
 
-      {/* Aura cursor: desktop only, and switched OFF while a certificate is open
-          (it hides the mouse pointer, which is why Close could not be found). */}
+      {/* Aura cursor: desktop only, and switched OFF while a certificate is open */}
       {tier === "high" && active && !selectedCert && (
         <div className="absolute inset-0 z-1 pointer-events-none">
           <AuraCursor {...auraProps} />
