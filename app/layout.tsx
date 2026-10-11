@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import EffectsToggle from "@/components/EffectsToggle";   // ← DAGDAG 1
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +22,7 @@ export const metadata = {
     icon: "/star.svg",
     apple: "/star.svg",
   },
-  
+
   openGraph: {
     title: "Jeric Lique | IT Enthusiast",
     description: "Jeric Lique - IT Professional Portfolio",
@@ -29,7 +30,7 @@ export const metadata = {
     siteName: "Jeric Lique Portfolio",
     images: [
       {
-        url: "/preview.png",       
+        url: "/preview.png",
         width: 1200,
         height: 630,
         alt: "Jeric Lique Portfolio Preview",
@@ -38,7 +39,7 @@ export const metadata = {
     locale: "en_US",
     type: "website",
   },
- 
+
   twitter: {
     card: "summary_large_image",
     title: "Jeric Lique | IT Enthusiast",
@@ -55,10 +56,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"                          // ← DAGDAG 2 (para mawala ang warning sa terminal)
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <EffectsToggle />                                    {/* ← DAGDAG 3 */}
       </body>
     </html>
   );

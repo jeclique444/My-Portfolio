@@ -268,8 +268,8 @@ const Education = memo(function Education() {
         className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(124,58,237,0.16),transparent_65%)]"
       />
 
-      {/* Glitter: phones/weak laptops get a lighter version, reduced-motion gets none */}
-      {tier !== "off" && active && (
+      {/* Glitter is a heavy particle effect: full-effects devices only */}
+      {tier === "high" && active && (
         <div className="absolute inset-0 z-0">
           <GlitterWrap {...glitterProps} />
         </div>
