@@ -1,63 +1,53 @@
 /* /app/globals.css */
 @import "tailwindcss";
 
-/* ✅ ONE SOLID VIOLET BACKGROUND – no gradient, no second colors */
+/* ✅ ONE SOLID VIOLET BACKGROUND */
 body {
-  background: #302b63;   /* matches your Experience page */
+  background: #302b63;
   color: white;
   min-height: 100vh;
 }
 
-/* Smooth scrolling with offset para sa navbar */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 100px;
 }
 
-/* ✅ Custom scrollbar – updated to match solid background */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #302b63;   /* solid violet, same as body */
+  background: #302b63;
   border-radius: 0px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #8b5cf6, #6366f1, #4facfe);
   border-radius: 10px;
   border: 2px solid rgba(15, 12, 41, 0.5);
   transition: all 0.3s ease;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #a78bfa, #818cf8, #60a5fa);
   box-shadow: 0 0 30px rgba(139, 92, 246, 0.4), 0 0 60px rgba(79, 172, 254, 0.2);
 }
-
 ::-webkit-scrollbar-thumb:active {
   background: linear-gradient(180deg, #7c3aed, #4f46e5, #3b82f6);
 }
-
-/* ✅ Scrollbar corner */
 ::-webkit-scrollbar-corner {
   background: #302b63;
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: #8b5cf6 #302b63;
 }
 
-/* Glow effect for text */
 .glow-text {
   text-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
 }
 
-/* Optional: section-full class (unchanged) */
 .section-full {
   min-height: calc(100vh - 80px) !important;
   display: flex !important;
@@ -67,13 +57,12 @@ html {
   padding-bottom: 1rem !important;
 }
 
-/* For pages that already use h-screen */
 .h-screen {
   height: calc(100vh - 80px) !important;
   min-height: calc(100vh - 80px) !important;
 }
 
-/* Skills marquee animations (unchanged) */
+/* Skills marquee animations */
 @keyframes scroll-tech {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -84,27 +73,45 @@ html {
 }
 
 .scroll-tech {
-  animation: scroll-tech 40s linear infinite; /* was 35s */
+  animation: scroll-tech 40s linear infinite;
 }
 .scroll-soft {
-  animation: scroll-soft 32s linear infinite; /* was 28s */
+  animation: scroll-soft 32s linear infinite;
 }
 .scroll-paused {
   animation-play-state: paused;
 }
 
-/* Lite / Off: backdrop-blur over live animation is one of the most expensive
-   things a laptop GPU can do. Turn it off everywhere in one place. */
+/* ── FX TIER SYSTEM ───────────────────────────────────────────────────── */
+
+/* Lite / Off: backdrop-blur ay napakabigat sa GPU — i-off lahat */
 html[data-fx="low"] [class*="backdrop-blur"],
 html[data-fx="off"] [class*="backdrop-blur"] {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-/* Off: stop CSS animations too */
+/* Off: patayin lahat ng CSS animations */
 html[data-fx="off"] *,
 html[data-fx="off"] *::before,
 html[data-fx="off"] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
 }
+
+/* ── AURORA — animation lang sa High tier ─────────────────────────────── */
+@keyframes aurora {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+html[data-fx="high"] .aurora-anim {
+  animation: aurora 60s linear infinite;
+}
+
+html[data-fx="low"] .aurora-anim,
+html[data-fx="off"] .aurora-anim {
+  animation: none !important;
+  background-position: 50% 50%;
+} 

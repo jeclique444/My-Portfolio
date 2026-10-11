@@ -42,28 +42,19 @@ const DEFAULTS = {
     label: true,
     labelText: "HOVER ME",
     labelColor: "#FFFFFF",
-    // 1 = dye lingers … 20 = it snaps away (× 0.5, so 7 = 3.5)
     densityDissipation: 7,
     curl: 3,
-    // ÷ 20, so 4 = 0.2
     splatRadius: 4,
-    // × 1000, so 6 = 6000
     splatForce: 6,
 };
 
-// Fixed now that their controls are gone. The numbers are the mapped values
-// the sliders used to produce at their defaults.
 const SHADING = true;
-// Palette laps per second. Walked continuously so consecutive splats land in
-// neighbouring colours instead of strobing between random entries.
 const COLOR_SPEED = 0.125;
-// Motion Fade sat at 4 on a ÷2 mapping.
 const VELOCITY_DISSIPATION = 2;
-// Pressure pinned to 1 on the old ÷20 mapping.
 const PRESSURE = 1 / 20;
-const SIM_RESOLUTION = 128;
-const DYE_RESOLUTION = 1440;
-const PRESSURE_ITERATIONS = 20;
+const SIM_RESOLUTION = 96;        // was 128 — mas magaan
+const DYE_RESOLUTION = 800;       // was 1440 — 3.2× mas magaan
+const PRESSURE_ITERATIONS = 10;   // was 20 — kalahati ng shader passes
 
 const DEFAULT_PALETTE = ["#A855F7", "#EC4899", "#3B82F6"];
 
@@ -370,13 +361,7 @@ function __OriginkitBase_AuraCursor(props: Props) {
     } = props;
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    // Bumped when the browser drops the WebGL context — a backgrounded tab, a
-    // GPU reset, too many live contexts on the page — so the whole solver is
-    // rebuilt against the restored one instead of drawing into a dead context
-    // forever.
     const [glEpoch, setGlEpoch] = useState(0);
-    // The component's own frame, kept in flow purely so Hover mode has a real
-    // rect to test against.
     const anchorRef = useRef<HTMLDivElement>(null);
 
     const paletteColors =
@@ -384,9 +369,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
             ? props.paletteColors
             : DEFAULT_PALETTE;
 
-    // Live config for the solver. Recompiling shaders and reallocating
-    // framebuffers on every slider tick would be brutal, so the loop reads
-    // this ref each frame instead of restarting.
     const live = useRef({
         paletteColors,
         backdrop,
@@ -405,13 +387,9 @@ function __OriginkitBase_AuraCursor(props: Props) {
     };
     const labelFont = { ...DEFAULT_LABEL_FONT, ...props.labelFont };
 
-    // Context loss is watched from its own effect so the listeners survive the
-    // early returns in the solver effect below — a solver that bailed out on a
-    // lost context is exactly the case that needs to hear about the restore.
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        // Without preventDefault the browser will not attempt a restore at all.
         const onLost = (e: Event) => e.preventDefault();
         const onRestored = () => setGlEpoch((n) => n + 1);
         canvas.addEventListener("webglcontextlost", onLost);
@@ -423,6 +401,10 @@ function __OriginkitBase_AuraCursor(props: Props) {
     }, []);
 
     useEffect(() => {
+        // ── FX TIER GUARD — skip sa low at off ───────────────────────────
+        const fxTier = document.documentElement.dataset.fx;
+        if (fxTier === "off" || fxTier === "low") return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -446,13 +428,9 @@ function __OriginkitBase_AuraCursor(props: Props) {
                     params
                 )) as WebGLRenderingContext | null;
         }
-        // No WebGL at all — render nothing rather than throwing.
         if (!gl) return;
         const g = gl as any;
 
-        // A context that is already lost — the usual cause is this component
-        // having been mounted before — answers every probe below with a
-        // failure, so recover it up front instead of bailing out silently.
         if (g.isContextLost()) {
             g.getExtension("WEBGL_lose_context")?.restoreContext();
             return;
@@ -486,24 +464,14 @@ function __OriginkitBase_AuraCursor(props: Props) {
             g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
             g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
             g.texImage2D(
-                g.TEXTURE_2D,
-                0,
-                internalFormat,
-                4,
-                4,
-                0,
-                format,
-                type,
-                null
+                g.TEXTURE_2D, 0, internalFormat, 4, 4, 0,
+                format, type, null
             );
             const fbo = g.createFramebuffer();
             g.bindFramebuffer(g.FRAMEBUFFER, fbo);
             g.framebufferTexture2D(
-                g.FRAMEBUFFER,
-                g.COLOR_ATTACHMENT0,
-                g.TEXTURE_2D,
-                texture,
-                0
+                g.FRAMEBUFFER, g.COLOR_ATTACHMENT0,
+                g.TEXTURE_2D, texture, 0
             );
             const ok =
                 g.checkFramebufferStatus(g.FRAMEBUFFER) ===
@@ -542,9 +510,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
             : getSupportedFormat(g.RGBA, g.RGBA, halfFloatTexType);
         if (!formatRGBA || !formatRG || !formatR) return;
 
-        // Weak GPUs without linear filtering get a capped dye texture and no
-        // shading pass; both are read through these so a prop change cannot
-        // push them back past what the hardware supports.
         const effectiveDyeRes = () =>
             supportLinearFiltering
                 ? DYE_RESOLUTION
@@ -611,7 +576,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
             }
         }
 
-        /** Same shader source, one compiled variant per keyword set. */
         class Material {
             programs: Record<number, any> = {};
             activeProgram: any = null;
@@ -645,8 +609,7 @@ function __OriginkitBase_AuraCursor(props: Props) {
         }
 
         const baseVertexShader = compileShader(
-            g.VERTEX_SHADER,
-            BASE_VERTEX_SHADER
+            g.VERTEX_SHADER, BASE_VERTEX_SHADER
         );
         const copyProgram = new Program(
             baseVertexShader,
@@ -716,9 +679,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
                 g.bindFramebuffer(g.FRAMEBUFFER, target.fbo);
             }
             if (clear) {
-                // Transparent for the canvas itself, opaque for the solver's
-                // own targets. Clearing the canvas to opaque black would black
-                // out whatever the component is sitting on top of.
                 g.clearColor(0, 0, 0, target == null ? 0 : 1);
                 g.clear(g.COLOR_BUFFER_BIT);
             }
@@ -726,12 +686,8 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         const createFBO = (
-            w: number,
-            h: number,
-            internalFormat: number,
-            format: number,
-            type: number,
-            param: number
+            w: number, h: number,
+            internalFormat: number, format: number, type: number, param: number
         ) => {
             g.activeTexture(g.TEXTURE0);
             const texture = g.createTexture();
@@ -741,34 +697,20 @@ function __OriginkitBase_AuraCursor(props: Props) {
             g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
             g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
             g.texImage2D(
-                g.TEXTURE_2D,
-                0,
-                internalFormat,
-                w,
-                h,
-                0,
-                format,
-                type,
-                null
+                g.TEXTURE_2D, 0, internalFormat, w, h, 0,
+                format, type, null
             );
             const fbo = g.createFramebuffer();
             g.bindFramebuffer(g.FRAMEBUFFER, fbo);
             g.framebufferTexture2D(
-                g.FRAMEBUFFER,
-                g.COLOR_ATTACHMENT0,
-                g.TEXTURE_2D,
-                texture,
-                0
+                g.FRAMEBUFFER, g.COLOR_ATTACHMENT0,
+                g.TEXTURE_2D, texture, 0
             );
             g.viewport(0, 0, w, h);
             g.clear(g.COLOR_BUFFER_BIT);
             return {
-                texture,
-                fbo,
-                width: w,
-                height: h,
-                texelSizeX: 1 / w,
-                texelSizeY: 1 / h,
+                texture, fbo, width: w, height: h,
+                texelSizeX: 1 / w, texelSizeY: 1 / h,
                 attach(id: number) {
                     g.activeTexture(g.TEXTURE0 + id);
                     g.bindTexture(g.TEXTURE_2D, texture);
@@ -777,9 +719,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
             };
         };
 
-        // Every FBO created here is deleted on resize or teardown. Reallocating
-        // without deleting the old textures would leak GPU memory for the
-        // page's life.
         const destroyFBO = (target: any) => {
             if (!target) return;
             g.deleteFramebuffer(target.fbo);
@@ -792,48 +731,25 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         const createDoubleFBO = (
-            w: number,
-            h: number,
-            internalFormat: number,
-            format: number,
-            type: number,
-            param: number
+            w: number, h: number,
+            internalFormat: number, format: number, type: number, param: number
         ) => {
             let fbo1 = createFBO(w, h, internalFormat, format, type, param);
             let fbo2 = createFBO(w, h, internalFormat, format, type, param);
             return {
-                width: w,
-                height: h,
-                texelSizeX: fbo1.texelSizeX,
-                texelSizeY: fbo1.texelSizeY,
-                get read() {
-                    return fbo1;
-                },
-                set read(v) {
-                    fbo1 = v;
-                },
-                get write() {
-                    return fbo2;
-                },
-                set write(v) {
-                    fbo2 = v;
-                },
-                swap() {
-                    const t = fbo1;
-                    fbo1 = fbo2;
-                    fbo2 = t;
-                },
+                width: w, height: h,
+                texelSizeX: fbo1.texelSizeX, texelSizeY: fbo1.texelSizeY,
+                get read() { return fbo1; },
+                set read(v) { fbo1 = v; },
+                get write() { return fbo2; },
+                set write(v) { fbo2 = v; },
+                swap() { const t = fbo1; fbo1 = fbo2; fbo2 = t; },
             };
         };
 
         const resizeFBO = (
-            target: any,
-            w: number,
-            h: number,
-            internalFormat: number,
-            format: number,
-            type: number,
-            param: number
+            target: any, w: number, h: number,
+            internalFormat: number, format: number, type: number, param: number
         ) => {
             const next = createFBO(w, h, internalFormat, format, type, param);
             copyProgram.bind();
@@ -844,24 +760,11 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         const resizeDoubleFBO = (
-            target: any,
-            w: number,
-            h: number,
-            internalFormat: number,
-            format: number,
-            type: number,
-            param: number
+            target: any, w: number, h: number,
+            internalFormat: number, format: number, type: number, param: number
         ) => {
             if (target.width === w && target.height === h) return target;
-            target.read = resizeFBO(
-                target.read,
-                w,
-                h,
-                internalFormat,
-                format,
-                type,
-                param
-            );
+            target.read = resizeFBO(target.read, w, h, internalFormat, format, type, param);
             destroyFBO(target.write);
             target.write = createFBO(w, h, internalFormat, format, type, param);
             target.width = w;
@@ -895,48 +798,16 @@ function __OriginkitBase_AuraCursor(props: Props) {
             g.disable(g.BLEND);
 
             dye = dye
-                ? resizeDoubleFBO(
-                      dye,
-                      dyeRes.width,
-                      dyeRes.height,
-                      formatRGBA!.internalFormat,
-                      formatRGBA!.format,
-                      texType,
-                      filtering
-                  )
-                : createDoubleFBO(
-                      dyeRes.width,
-                      dyeRes.height,
-                      formatRGBA!.internalFormat,
-                      formatRGBA!.format,
-                      texType,
-                      filtering
-                  );
+                ? resizeDoubleFBO(dye, dyeRes.width, dyeRes.height,
+                    formatRGBA!.internalFormat, formatRGBA!.format, texType, filtering)
+                : createDoubleFBO(dyeRes.width, dyeRes.height,
+                    formatRGBA!.internalFormat, formatRGBA!.format, texType, filtering);
             velocity = velocity
-                ? resizeDoubleFBO(
-                      velocity,
-                      simRes.width,
-                      simRes.height,
-                      formatRG!.internalFormat,
-                      formatRG!.format,
-                      texType,
-                      filtering
-                  )
-                : createDoubleFBO(
-                      simRes.width,
-                      simRes.height,
-                      formatRG!.internalFormat,
-                      formatRG!.format,
-                      texType,
-                      filtering
-                  );
+                ? resizeDoubleFBO(velocity, simRes.width, simRes.height,
+                    formatRG!.internalFormat, formatRG!.format, texType, filtering)
+                : createDoubleFBO(simRes.width, simRes.height,
+                    formatRG!.internalFormat, formatRG!.format, texType, filtering);
 
-            // The scratch targets only depend on the simulation resolution, and
-            // resizeDoubleFBO above already no-ops when that has not moved.
-            // Rebuilding them unconditionally would throw away the pressure
-            // field on every call — including ones a mere layout nudge
-            // triggers — and the frame drawn from that blank field reads as a
-            // flash.
             if (
                 divergence &&
                 divergence.width === simRes.width &&
@@ -948,30 +819,12 @@ function __OriginkitBase_AuraCursor(props: Props) {
             destroyFBO(divergence);
             destroyFBO(curlFBO);
             destroyDoubleFBO(pressureFBO);
-            divergence = createFBO(
-                simRes.width,
-                simRes.height,
-                formatR!.internalFormat,
-                formatR!.format,
-                texType,
-                g.NEAREST
-            );
-            curlFBO = createFBO(
-                simRes.width,
-                simRes.height,
-                formatR!.internalFormat,
-                formatR!.format,
-                texType,
-                g.NEAREST
-            );
-            pressureFBO = createDoubleFBO(
-                simRes.width,
-                simRes.height,
-                formatR!.internalFormat,
-                formatR!.format,
-                texType,
-                g.NEAREST
-            );
+            divergence = createFBO(simRes.width, simRes.height,
+                formatR!.internalFormat, formatR!.format, texType, g.NEAREST);
+            curlFBO = createFBO(simRes.width, simRes.height,
+                formatR!.internalFormat, formatR!.format, texType, g.NEAREST);
+            pressureFBO = createDoubleFBO(simRes.width, simRes.height,
+                formatR!.internalFormat, formatR!.format, texType, g.NEAREST);
         };
 
         const updateKeywords = () => {
@@ -980,18 +833,10 @@ function __OriginkitBase_AuraCursor(props: Props) {
         updateKeywords();
         initFramebuffers();
 
-        // Dye brightness. 0.15 was the reference solver's value and it left the
-        // trail all but invisible on a dark page — the effect read as broken.
         const tint = () => (live.current.backdrop === "dark" ? 0.5 : 0.85);
 
-        // Where in the palette the dye currently sits, 0…1 around the loop.
         let colorPhase = Math.random();
 
-        /**
-         * The palette as a continuous loop rather than a bag to draw from. Two
-         * neighbouring entries are blended, so the colour drifts instead of
-         * jumping and a single stroke stays one hue.
-         */
         const paletteAt = (phase: number): RGB => {
             const p = live.current;
             const list = p.paletteColors.length
@@ -1012,16 +857,12 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         const pointer = {
-            texcoordX: 0,
-            texcoordY: 0,
-            prevTexcoordX: 0,
-            prevTexcoordY: 0,
-            deltaX: 0,
-            deltaY: 0,
+            texcoordX: 0, texcoordY: 0,
+            prevTexcoordX: 0, prevTexcoordY: 0,
+            deltaX: 0, deltaY: 0,
             moved: false,
             color: paletteAt(colorPhase),
-            clientX: 0,
-            clientY: 0,
+            clientX: 0, clientY: 0,
         };
 
         const correctRadius = (radius: number) => {
@@ -1030,29 +871,18 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         const splat = (
-            x: number,
-            y: number,
-            dx: number,
-            dy: number,
-            c: RGB
+            x: number, y: number,
+            dx: number, dy: number, c: RGB
         ) => {
-            // Splats run before step(), so blending was still enabled from the
-            // previous frame's composite. Blending into a half-float target is
-            // driver-dependent in WebGL2 and the splat shader already writes the
-            // combined value itself, so the pass must own its blend state.
             g.disable(g.BLEND);
             splatProgram.bind();
             g.uniform1i(splatProgram.uniforms.uTarget, velocity.read.attach(0));
-            g.uniform1f(
-                splatProgram.uniforms.aspectRatio,
-                canvas.width / canvas.height
-            );
+            g.uniform1f(splatProgram.uniforms.aspectRatio,
+                canvas.width / canvas.height);
             g.uniform2f(splatProgram.uniforms.point, x, y);
             g.uniform3f(splatProgram.uniforms.color, dx, dy, 0);
-            g.uniform1f(
-                splatProgram.uniforms.radius,
-                correctRadius(live.current.splatRadius / 100)
-            );
+            g.uniform1f(splatProgram.uniforms.radius,
+                correctRadius(live.current.splatRadius / 100));
             blit(velocity.write);
             velocity.swap();
 
@@ -1064,8 +894,7 @@ function __OriginkitBase_AuraCursor(props: Props) {
 
         const splatPointer = () => {
             splat(
-                pointer.texcoordX,
-                pointer.texcoordY,
+                pointer.texcoordX, pointer.texcoordY,
                 pointer.deltaX * live.current.splatForce,
                 pointer.deltaY * live.current.splatForce,
                 pointer.color
@@ -1075,37 +904,29 @@ function __OriginkitBase_AuraCursor(props: Props) {
         const clickSplat = () => {
             const c = paletteAt(colorPhase);
             splat(
-                pointer.texcoordX,
-                pointer.texcoordY,
+                pointer.texcoordX, pointer.texcoordY,
                 10 * (Math.random() - 0.5),
                 30 * (Math.random() - 0.5),
                 { r: c.r * 10, g: c.g * 10, b: c.b * 10 }
             );
         };
 
-        // The fluid fills the component's OWN frame, so both the hit test and
-        // the texture coordinates are taken against the canvas's rect.
         const isInsideHoverZone = (clientX: number, clientY: number) => {
             const anchor = anchorRef.current;
             if (!anchor) return true;
             const rect = anchor.getBoundingClientRect();
             return (
-                clientX >= rect.left &&
-                clientX <= rect.right &&
-                clientY >= rect.top &&
-                clientY <= rect.bottom
+                clientX >= rect.left && clientX <= rect.right &&
+                clientY >= rect.top && clientY <= rect.bottom
             );
         };
 
-        // Hover zone only: the pointer has to be inside this component's own
-        // frame for the fluid to take any input at all.
         const shouldSplat = () =>
             isInsideHoverZone(pointer.clientX, pointer.clientY);
 
         const scaleByPixelRatio = (input: number) =>
             Math.floor(input * (window.devicePixelRatio || 1));
 
-        /** Pointer position as a 0…1 fraction of the canvas, y up. */
         const texcoords = (clientX: number, clientY: number) => {
             const rect = canvas.getBoundingClientRect();
             return {
@@ -1114,17 +935,12 @@ function __OriginkitBase_AuraCursor(props: Props) {
             };
         };
 
-        // The native cursor is only replaced while the pointer is over this
-        // frame — hiding it document-wide would blank it over the whole page
-        // for a component that only owns its own section.
         const previousCursor = document.documentElement.style.cursor;
         let cursorHidden = false;
         const hideNativeCursor = (hide: boolean) => {
             if (hide === cursorHidden) return;
             cursorHidden = hide;
-            document.documentElement.style.cursor = hide
-                ? "none"
-                : previousCursor;
+            document.documentElement.style.cursor = hide ? "none" : previousCursor;
         };
 
         const correctDeltaX = (delta: number) => {
@@ -1137,11 +953,9 @@ function __OriginkitBase_AuraCursor(props: Props) {
         };
 
         let firstMove = true;
-        // One pointer handler covers mouse, pen and touch.
         const onPointerMove = (e: PointerEvent) => {
             const over = isInsideHoverZone(e.clientX, e.clientY);
             hideNativeCursor(over);
-            // Nothing is shown until the pointer is first seen over the frame.
             if (over) canvas.style.opacity = "1";
             const tc = texcoords(e.clientX, e.clientY);
             pointer.clientX = e.clientX;
@@ -1150,12 +964,8 @@ function __OriginkitBase_AuraCursor(props: Props) {
             pointer.prevTexcoordY = pointer.texcoordY;
             pointer.texcoordX = tc.x;
             pointer.texcoordY = tc.y;
-            pointer.deltaX = correctDeltaX(
-                pointer.texcoordX - pointer.prevTexcoordX
-            );
-            pointer.deltaY = correctDeltaY(
-                pointer.texcoordY - pointer.prevTexcoordY
-            );
+            pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
+            pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
             pointer.moved =
                 !firstMove &&
                 (Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0);
@@ -1182,8 +992,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
             }
         };
 
-        // Passive, and on window — nothing is intercepted, so the page below
-        // behaves exactly as if this component were not mounted.
         window.addEventListener("pointermove", onPointerMove, { passive: true });
         window.addEventListener("pointerdown", onPointerDown, { passive: true });
 
@@ -1198,24 +1006,15 @@ function __OriginkitBase_AuraCursor(props: Props) {
             g.disable(g.BLEND);
 
             curlProgram.bind();
-            g.uniform2f(
-                curlProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
+            g.uniform2f(curlProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
             g.uniform1i(curlProgram.uniforms.uVelocity, velocity.read.attach(0));
             blit(curlFBO);
 
             vorticityProgram.bind();
-            g.uniform2f(
-                vorticityProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
-            g.uniform1i(
-                vorticityProgram.uniforms.uVelocity,
-                velocity.read.attach(0)
-            );
+            g.uniform2f(vorticityProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
+            g.uniform1i(vorticityProgram.uniforms.uVelocity, velocity.read.attach(0));
             g.uniform1i(vorticityProgram.uniforms.uCurl, curlFBO.attach(1));
             g.uniform1f(vorticityProgram.uniforms.curl, p.curl);
             g.uniform1f(vorticityProgram.uniforms.dt, dt);
@@ -1223,103 +1022,60 @@ function __OriginkitBase_AuraCursor(props: Props) {
             velocity.swap();
 
             divergenceProgram.bind();
-            g.uniform2f(
-                divergenceProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
-            g.uniform1i(
-                divergenceProgram.uniforms.uVelocity,
-                velocity.read.attach(0)
-            );
+            g.uniform2f(divergenceProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
+            g.uniform1i(divergenceProgram.uniforms.uVelocity, velocity.read.attach(0));
             blit(divergence);
 
             clearProgram.bind();
-            g.uniform1i(
-                clearProgram.uniforms.uTexture,
-                pressureFBO.read.attach(0)
-            );
+            g.uniform1i(clearProgram.uniforms.uTexture, pressureFBO.read.attach(0));
             g.uniform1f(clearProgram.uniforms.value, PRESSURE);
             blit(pressureFBO.write);
             pressureFBO.swap();
 
             pressureProgram.bind();
-            g.uniform2f(
-                pressureProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
-            g.uniform1i(
-                pressureProgram.uniforms.uDivergence,
-                divergence.attach(0)
-            );
-            // Jacobi iterations — the accuracy/cost dial.
+            g.uniform2f(pressureProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
+            g.uniform1i(pressureProgram.uniforms.uDivergence, divergence.attach(0));
             for (let i = 0; i < PRESSURE_ITERATIONS; i++) {
-                g.uniform1i(
-                    pressureProgram.uniforms.uPressure,
-                    pressureFBO.read.attach(1)
-                );
+                g.uniform1i(pressureProgram.uniforms.uPressure,
+                    pressureFBO.read.attach(1));
                 blit(pressureFBO.write);
                 pressureFBO.swap();
             }
 
             gradientSubtractProgram.bind();
-            g.uniform2f(
-                gradientSubtractProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
-            g.uniform1i(
-                gradientSubtractProgram.uniforms.uPressure,
-                pressureFBO.read.attach(0)
-            );
-            g.uniform1i(
-                gradientSubtractProgram.uniforms.uVelocity,
-                velocity.read.attach(1)
-            );
+            g.uniform2f(gradientSubtractProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
+            g.uniform1i(gradientSubtractProgram.uniforms.uPressure,
+                pressureFBO.read.attach(0));
+            g.uniform1i(gradientSubtractProgram.uniforms.uVelocity,
+                velocity.read.attach(1));
             blit(velocity.write);
             velocity.swap();
 
             advectionProgram.bind();
-            g.uniform2f(
-                advectionProgram.uniforms.texelSize,
-                velocity.texelSizeX,
-                velocity.texelSizeY
-            );
+            g.uniform2f(advectionProgram.uniforms.texelSize,
+                velocity.texelSizeX, velocity.texelSizeY);
             if (!supportLinearFiltering) {
-                g.uniform2f(
-                    advectionProgram.uniforms.dyeTexelSize,
-                    velocity.texelSizeX,
-                    velocity.texelSizeY
-                );
+                g.uniform2f(advectionProgram.uniforms.dyeTexelSize,
+                    velocity.texelSizeX, velocity.texelSizeY);
             }
             const velocityId = velocity.read.attach(0);
             g.uniform1i(advectionProgram.uniforms.uVelocity, velocityId);
             g.uniform1i(advectionProgram.uniforms.uSource, velocityId);
             g.uniform1f(advectionProgram.uniforms.dt, dt);
-            g.uniform1f(
-                advectionProgram.uniforms.dissipation,
-                VELOCITY_DISSIPATION
-            );
+            g.uniform1f(advectionProgram.uniforms.dissipation, VELOCITY_DISSIPATION);
             blit(velocity.write);
             velocity.swap();
 
             if (!supportLinearFiltering) {
-                g.uniform2f(
-                    advectionProgram.uniforms.dyeTexelSize,
-                    dye.texelSizeX,
-                    dye.texelSizeY
-                );
+                g.uniform2f(advectionProgram.uniforms.dyeTexelSize,
+                    dye.texelSizeX, dye.texelSizeY);
             }
-            g.uniform1i(
-                advectionProgram.uniforms.uVelocity,
-                velocity.read.attach(0)
-            );
+            g.uniform1i(advectionProgram.uniforms.uVelocity, velocity.read.attach(0));
             g.uniform1i(advectionProgram.uniforms.uSource, dye.read.attach(1));
-            g.uniform1f(
-                advectionProgram.uniforms.dissipation,
-                p.densityDissipation
-            );
+            g.uniform1f(advectionProgram.uniforms.dissipation, p.densityDissipation);
             blit(dye.write);
             dye.swap();
         };
@@ -1329,16 +1085,10 @@ function __OriginkitBase_AuraCursor(props: Props) {
             g.enable(g.BLEND);
             displayMaterial.bind();
             if (effectiveShading()) {
-                g.uniform2f(
-                    displayMaterial.uniforms.texelSize,
-                    1 / g.drawingBufferWidth,
-                    1 / g.drawingBufferHeight
-                );
+                g.uniform2f(displayMaterial.uniforms.texelSize,
+                    1 / g.drawingBufferWidth, 1 / g.drawingBufferHeight);
             }
             g.uniform1i(displayMaterial.uniforms.uTexture, dye.read.attach(0));
-            // Cleared, not just blended over, so an uncomposited frame cannot
-            // double up on the previous one and flicker on the next presented
-            // frame.
             blit(null, true);
         };
 
@@ -1350,19 +1100,20 @@ function __OriginkitBase_AuraCursor(props: Props) {
         let raf = 0;
 
         const frame = () => {
-            // Every call below would be a silent no-op on a lost context, and
-            // the restore listener is what gets the solver running again.
             if (g.isContextLost()) {
                 raf = 0;
                 return;
             }
+            // Stop kung naging low/off mid-session
+            if (document.documentElement.dataset.fx !== "high") {
+                raf = requestAnimationFrame(frame);
+                return;
+            }
             const now = performance.now();
-            // Capped at a 60fps step so a long stall cannot blow up the solver.
-            const dt = Math.min((now - lastUpdateTime) / 1000, 0.016666);
+            // Cap sa ~30fps para hindi mabigat kahit sa High
+            const dt = Math.min((now - lastUpdateTime) / 1000, 0.033);
             lastUpdateTime = now;
 
-            // Resizing is driven by a ResizeObserver flag, so there is no
-            // forced layout read on every frame.
             let rebuild = false;
             if (needsResize) {
                 needsResize = false;
@@ -1389,8 +1140,6 @@ function __OriginkitBase_AuraCursor(props: Props) {
                 updateKeywords();
             }
 
-            // Walked, not re-rolled: the dye colour eases along the palette
-            // so consecutive splats are neighbours instead of a strobe.
             colorPhase = (colorPhase + dt * COLOR_SPEED) % 1;
             pointer.color = paletteAt(colorPhase);
 
@@ -1411,13 +1160,9 @@ function __OriginkitBase_AuraCursor(props: Props) {
             raf = 0;
         };
 
-        const ro = new ResizeObserver(() => {
-            needsResize = true;
-        });
+        const ro = new ResizeObserver(() => { needsResize = true; });
         ro.observe(canvas);
 
-        // The canvas fills the component's own frame, not the viewport, so it
-        // really can scroll out of view. Pause the solver in either case.
         let onScreen = true;
         const sync = () => {
             if (onScreen && !document.hidden) start();
@@ -1450,25 +1195,15 @@ function __OriginkitBase_AuraCursor(props: Props) {
             destroyFBO(curlFBO);
             g.deleteBuffer(quadBuffer);
             g.deleteBuffer(quadIndices);
-            // Deliberately NOT loseContext(). A canvas hands back the *same*
-            // context object every time getContext is called, and a forced loss
-            // is permanent, so tearing the context down here would leave the
-            // element dead for good on remount. The GPU resources above are
-            // already released individually; the context is reused.
         };
     }, [glEpoch]);
 
-    // Sits in the component's own frame, centred — the cue to hover.
     const labelNode = label ? (
         <div
             style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                whiteSpace: "pre",
-                pointerEvents: "none",
-                userSelect: "none",
+                position: "absolute", left: "50%", top: "50%",
+                transform: "translate(-50%, -50%)", whiteSpace: "pre",
+                pointerEvents: "none", userSelect: "none",
                 fontFamily: labelFont.fontFamily,
                 fontWeight: labelFont.fontWeight,
                 fontSize: labelFont.fontSize,
@@ -1482,20 +1217,12 @@ function __OriginkitBase_AuraCursor(props: Props) {
         </div>
     ) : null;
 
-    // The frame is what the fluid fills and what the hover zone measures, and
-    // it carries the centred label.
     return (
         <div
             ref={anchorRef}
             style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                // The effect belongs to this frame, so it is clipped to it.
-                overflow: "hidden",
-                // A cursor effect must never swallow a click meant for whatever
-                // sits under it; the solver listens on the window instead.
-                pointerEvents: "none",
+                position: "relative", width: "100%", height: "100%",
+                overflow: "hidden", pointerEvents: "none",
                 ...style,
             }}
         >
@@ -1503,13 +1230,9 @@ function __OriginkitBase_AuraCursor(props: Props) {
             <canvas
                 ref={canvasRef}
                 style={{
-                    position: "absolute",
-                    inset: 0,
-                    width: "100%",
-                    height: "100%",
-                    display: "block",
-                    // Hidden until the pointer is first seen over the frame.
-                    opacity: 0,
+                    position: "absolute", inset: 0,
+                    width: "100%", height: "100%",
+                    display: "block", opacity: 0,
                     pointerEvents: "none",
                 }}
             />

@@ -4,7 +4,7 @@
 import React from "react";
 
 interface AuroraBackgroundProps extends React.HTMLProps<HTMLDivElement> {
-  children?: React.ReactNode; // ✅ Fixed: made optional
+  children?: React.ReactNode;
 }
 
 export function AuroraBackground({ children, className, ...props }: AuroraBackgroundProps) {
@@ -16,7 +16,7 @@ export function AuroraBackground({ children, className, ...props }: AuroraBackgr
       {/* Aurora layers — more vibrant violet/purple */}
       <div className="absolute inset-0 opacity-80">
         {/* Layer 1 — Main violet/purple aurora */}
-        <div 
+        <div
           className="absolute inset-0 animate-aurora"
           style={{
             background: `
@@ -27,9 +27,9 @@ export function AuroraBackground({ children, className, ...props }: AuroraBackgr
             backgroundSize: '300% 300%',
           }}
         />
-        
+
         {/* Layer 2 — Secondary violet glow */}
-        <div 
+        <div
           className="absolute inset-0 animate-aurora"
           style={{
             background: `
@@ -41,9 +41,9 @@ export function AuroraBackground({ children, className, ...props }: AuroraBackgr
             animationDelay: '-20s',
           }}
         />
-        
+
         {/* Layer 3 — Soft purple accents */}
-        <div 
+        <div
           className="absolute inset-0 animate-aurora"
           style={{
             background: `
@@ -56,8 +56,8 @@ export function AuroraBackground({ children, className, ...props }: AuroraBackgr
           }}
         />
       </div>
-      
-      {/* Optional: Subtle stars/particles overlay */}
+
+      {/* Subtle stars overlay */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0" style={{
           backgroundImage: `radial-gradient(2px 2px at 20px 30px, #eee, transparent),
@@ -70,8 +70,7 @@ export function AuroraBackground({ children, className, ...props }: AuroraBackgr
           backgroundRepeat: 'repeat',
         }} />
       </div>
-      
-      {/* Content */}
+
       <div className="relative z-10">
         {children}
       </div>

@@ -23,54 +23,44 @@ interface ShootingStarsProps {
   trailColor?: string;
   starWidth?: number;
   starHeight?: number;
-  cursorX?: number;   // Mouse X position (0–1)
-  cursorY?: number;   // Mouse Y position (0–1)
+  cursorX?: number;
+  cursorY?: number;
   className?: string;
 }
 
 const getRandomStartPoint = (cursorX?: number, cursorY?: number, width?: number, height?: number) => {
-  // If cursor position is provided, spawn near cursor
   if (cursorX !== undefined && cursorY !== undefined && width && height) {
-    // Spread around cursor with some randomness
     const offsetX = (Math.random() - 0.5) * 600;
     const offsetY = (Math.random() - 0.5) * 600;
     let x = cursorX * width + offsetX;
     let y = cursorY * height + offsetY;
-    // Clamp to viewport edges
     x = Math.max(0, Math.min(width, x));
     y = Math.max(0, Math.min(height, y));
-    // Random angle slightly biased toward center
-    const angle = 45 + Math.random() * 20 - 10; // 35–55 degrees
+    const angle = 45 + Math.random() * 20 - 10;
     return { x, y, angle };
   }
 
-  // Fallback to random edge
   const side = Math.floor(Math.random() * 4);
   const offset = Math.random() * (width || window.innerWidth);
 
   switch (side) {
-    case 0:
-      return { x: offset, y: 0, angle: 45 };
-    case 1:
-      return { x: width || window.innerWidth, y: offset, angle: 135 };
-    case 2:
-      return { x: offset, y: height || window.innerHeight, angle: 225 };
-    case 3:
-      return { x: 0, y: offset, angle: 315 };
-    default:
-      return { x: 0, y: 0, angle: 45 };
+    case 0: return { x: offset, y: 0, angle: 45 };
+    case 1: return { x: width || window.innerWidth, y: offset, angle: 135 };
+    case 2: return { x: offset, y: height || window.innerHeight, angle: 225 };
+    case 3: return { x: 0, y: offset, angle: 315 };
+    default: return { x: 0, y: 0, angle: 45 };
   }
 };
 
 export const ShootingStars: React.FC<ShootingStarsProps> = ({
   minSpeed = 10,
   maxSpeed = 30,
-  minDelay = 200,      // ✅ Faster: was 1200
-  maxDelay = 800,      // ✅ Faster: was 4200
+  minDelay = 200,
+  maxDelay = 800,
   starColor = "#9E00FF",
   trailColor = "#2EB9DF",
-  starWidth = 20,      // ✅ Bigger: was 10
-  starHeight = 2,      // ✅ Bigger: was 1
+  starWidth = 20,
+  starHeight = 2,
   cursorX,
   cursorY,
   className,
@@ -78,9 +68,25 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
   const [star, setStar] = useState<ShootingStar | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [enabled, setEnabled] = useState(false);
 
-  // Update dimensions on mount and resize
+  // Watch fx tier — only run sa "high"
   useEffect(() => {
+    const check = () => {
+      const tier = document.documentElement.dataset.fx;
+      setEnabled(tier === "high");
+    };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-fx"],
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
@@ -90,37 +96,31 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     const createStar = () => {
       const { x, y, angle } = getRandomStartPoint(
-        cursorX,
-        cursorY,
-        dimensions.width,
-        dimensions.height
+        cursorX, cursorY,
+        dimensions.width, dimensions.height
       );
       const newStar: ShootingStar = {
-        id: Date.now(),
-        x,
-        y,
-        angle,
-        scale: 1,
+        id: Date.now(), x, y, angle, scale: 1,
         speed: Math.random() * (maxSpeed - minSpeed) + minSpeed,
         distance: 0,
       };
       setStar(newStar);
-
-      const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+      // Slower spawn — 1.5–3s (was 200–800ms)
+      const randomDelay = Math.random() * 1500 + 1500;
       setTimeout(createStar, randomDelay);
     };
-
     createStar();
-
-    return () => {};
-  }, [minSpeed, maxSpeed, minDelay, maxDelay, cursorX, cursorY, dimensions]);
+    return () => { setStar(null); };
+  }, [minSpeed, maxSpeed, minDelay, maxDelay, cursorX, cursorY, dimensions, enabled]);
 
   useEffect(() => {
+    if (!enabled) return;
     const moveStar = () => {
       if (star) {
         setStar((prevStar) => {
@@ -143,18 +143,17 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
           }
           return {
             ...prevStar,
-            x: newX,
-            y: newY,
-            distance: newDistance,
-            scale: newScale,
+            x: newX, y: newY,
+            distance: newDistance, scale: newScale,
           };
         });
       }
     };
-
     const animationFrame = requestAnimationFrame(moveStar);
     return () => cancelAnimationFrame(animationFrame);
-  }, [star, dimensions]);
+  }, [star, dimensions, enabled]);
+
+  if (!enabled) return null;
 
   return (
     <svg
@@ -164,10 +163,8 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
       {star && (
         <rect
           key={star.id}
-          x={star.x}
-          y={star.y}
-          width={starWidth * star.scale}
-          height={starHeight}
+          x={star.x} y={star.y}
+          width={starWidth * star.scale} height={starHeight}
           fill="url(#gradient)"
           transform={`rotate(${star.angle}, ${
             star.x + (starWidth * star.scale) / 2
@@ -177,10 +174,7 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
       <defs>
         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: trailColor, stopOpacity: 0 }} />
-          <stop
-            offset="100%"
-            style={{ stopColor: starColor, stopOpacity: 1 }}
-          />
+          <stop offset="100%" style={{ stopColor: starColor, stopOpacity: 1 }} />
         </linearGradient>
       </defs>
     </svg>
