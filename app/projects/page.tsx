@@ -102,6 +102,13 @@ const PROJECTS: Project[] = [
 // Placeholder links ("yourusername") are treated as missing, so no broken buttons.
 const hasRepo = (p: Project) => !!p.github && !p.github.includes("yourusername");
 
+// "Send Message" opens a Gmail compose window addressed to you, subject pre-filled.
+const CONTACT_EMAIL = "liquejericc@gmail.com";
+const gmailCompose = (title: string) =>
+  `https://mail.google.com/mail/u/0/?fs=1&to=${CONTACT_EMAIL}&su=${encodeURIComponent(
+    `Inquiry about ${title}`
+  )}&tf=cm`;
+
 // ─── Card ───────────────────────────────────────────────────────────────
 const ProjectCard = memo(function ProjectCard({
   project,
@@ -223,7 +230,7 @@ const ProjectModal = memo(function ProjectModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 cursor-default"
       onClick={onClose}
     >
       <motion.div
@@ -251,7 +258,7 @@ const ProjectModal = memo(function ProjectModal({
           <button
             onClick={onClose}
             aria-label="Close project details"
-            className="text-gray-400 hover:text-white transition p-2 rounded-full hover:bg-gray-800"
+            className="cursor-pointer text-gray-400 hover:text-white transition p-2 rounded-full hover:bg-gray-800"
           >
             <FaTimes className="w-5 h-5" />
           </button>
@@ -343,7 +350,7 @@ const ProjectModal = memo(function ProjectModal({
               href={project.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 text-center px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition"
+              className="cursor-pointer flex-1 text-center px-4 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-sm font-medium transition"
             >
               Open Live Demo
             </a>
@@ -352,17 +359,18 @@ const ProjectModal = memo(function ProjectModal({
                 href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
+                className="cursor-pointer flex-1 flex items-center justify-center gap-2 px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
               >
                 <FaGithub className="w-4 h-4" />
                 View Code
               </a>
             )}
+            {/* Fixed: Gmail compose instead of mailto */}
             <a
-              href={`mailto:liquejericc@gmail.com?subject=${encodeURIComponent(
-                `Inquiry about ${project.title}`
-              )}`}
-              className="flex-1 text-center px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
+              href={gmailCompose(project.title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cursor-pointer flex-1 text-center px-4 py-3 border border-gray-600 hover:border-violet-500 hover:text-violet-400 text-gray-300 rounded-lg text-sm font-medium transition"
             >
               Send Message
             </a>
