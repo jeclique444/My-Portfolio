@@ -1,3 +1,4 @@
+// /app/components/Hero.tsx (o kahit saan naka-locate ang file mo)
 "use client";
 
 import Image from "next/image";
@@ -39,7 +40,7 @@ const TEXTS = [
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
 
-// All four buttons share one style. On desktop they split the column width equally.
+// All three buttons share one style. On desktop they split the column width equally.
 const BTN =
   "px-4 xl:px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-base text-center whitespace-nowrap shadow-sm lg:flex-1";
 
@@ -346,17 +347,6 @@ export default function Hero() {
             <Link href="/projects" className={BTN}>
               View Projects
             </Link>
-            {/* Opens the PDF in a new tab to read first. Downloading is up to them
-                (the browser's PDF viewer has its own download button).
-                Put the file at public/resume.pdf */}
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={BTN}
-            >
-              View Resume
-            </a>
             <Link href="/contact" className={BTN}>
               Work With Me
             </Link>
@@ -379,4 +369,4 @@ export default function Hero() {
       </motion.div>
     </section>
   );
-} 
+}
